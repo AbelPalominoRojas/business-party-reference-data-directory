@@ -1,0 +1,723 @@
+openapi: "3.0.1"
+info:
+  title: "API Party Reference Data Directory - BIAN"
+  description: |
+    API alineada al Service Domain BIAN Party Reference Data Directory (Functional Pattern: Directory).
+    Permite registrar, actualizar y consultar la información de clientes (persona natural o jurídica),
+    incluyendo datos de identificación, nombres, tipo de party y estado de residencia.
+    Action Terms soportados: Register, Update, Retrieve.
+  version: "1.0.0"
+externalDocs:
+  description: "Más información"
+  url: "https://localhost:8080/swagger-ui/index.html"
+servers:
+  - url: "/api/v1"
+tags:
+  - name: "PartyReferenceDataDirectoryEntry"
+    description: |
+      Control Record del Service Domain Party Reference Data Directory.
+      Gestiona los datos maestros del cliente (persona natural o jurídica) como entrada del directorio,
+      incluyendo identificación, nombres, tipo de party y estado de residencia.
+
+paths:
+  # ─── CR: Register (Registrar un nuevo cliente) ─────────────────────────
+  /party-reference-data-directory/register:
+    post:
+      tags:
+        - PartyReferenceDataDirectoryEntry
+      summary: Registrar un nuevo cliente en el directorio (Register).
+      description: |
+        Crea una nueva entrada en el directorio del Party. Requiere los datos de identificación,
+        nombres, tipo de party y estado de residencia. Retorna el identificador generado (`partyId`).
+        BIAN Action Term: Register.
+      operationId: registerPartyReferenceDataDirectoryEntry
+      parameters:
+        - $ref: '#/components/parameters/Request-ID'
+      requestBody:
+        description: Datos del nuevo cliente a registrar en el directorio del Party.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterPartyReferenceDataDirectoryEntryRequest'
+      responses:
+        '201':
+          description: El registro del cliente se completó de forma exitosa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterPartyReferenceDataDirectoryEntryResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+
+  # ─── CR: Retrieve by ID (Consultar un cliente) ─────────────────────────
+  /party-reference-data-directory/{partyReferenceDataDirectoryEntryId}/retrieve:
+    get:
+      tags:
+        - PartyReferenceDataDirectoryEntry
+      summary: Consultar un cliente por su identificador en el directorio (Retrieve).
+      operationId: retrievePartyReferenceDataDirectoryEntry
+      description: |
+        Recupera los datos completos de un cliente (persona natural o jurídica) a partir de su
+        identificador en el directorio. La respuesta incluye identificación, nombres, tipo de party,
+        estado de residencia y fechas del directorio.
+        BIAN Action Term: Retrieve.
+      parameters:
+        - $ref: '#/components/parameters/Request-ID'
+        - $ref: '#/components/parameters/partyReferenceDataDirectoryEntryId'
+      responses:
+        '200':
+          description: La consulta del cliente se completó de forma exitosa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrievePartyReferenceDataDirectoryEntryResponse'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+
+  # ─── CR: Update (Actualizar un cliente) ─────────────────────────────────
+  /party-reference-data-directory/{partyReferenceDataDirectoryEntryId}/update:
+    put:
+      tags:
+        - PartyReferenceDataDirectoryEntry
+      summary: Actualizar los datos de un cliente en el directorio (Update).
+      description: |
+        Actualiza los datos de un cliente (persona natural o jurídica) identificado por su entrada
+        en el directorio. Permite modificar la identificación, nombres, tipo de party y estado de residencia.
+        BIAN Action Term: Update.
+      operationId: updatePartyReferenceDataDirectoryEntry
+      parameters:
+        - $ref: '#/components/parameters/Request-ID'
+        - $ref: '#/components/parameters/partyReferenceDataDirectoryEntryId'
+      requestBody:
+        description: Datos del cliente a actualizar en el directorio del Party.
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterPartyReferenceDataDirectoryEntryRequest'
+      responses:
+        '200':
+          description: La actualización del cliente se completó de forma exitosa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RegisterPartyReferenceDataDirectoryEntryResponse'
+        '204':
+          $ref: '#/components/responses/NoContent'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+
+  # ─── CR: Retrieve list (Consultar clientes con filtros) ─────────────────
+  /party-reference-data-directory/retrieve:
+    get:
+      tags:
+        - PartyReferenceDataDirectoryEntry
+      summary: Consultar clientes con filtros, paginación y ordenamiento (Retrieve).
+      operationId: retrievePartyReferenceDataDirectoryEntries
+      description: |
+        Recupera una lista paginada de clientes aplicando filtros opcionales por documento de identidad,
+        tipo de party y estado de residencia. Soporta ordenamiento por campos configurables.
+        BIAN Action Term: Retrieve.
+      parameters:
+        - $ref: '#/components/parameters/Request-ID'
+        - $ref: '#/components/parameters/identifierValue'
+        - $ref: '#/components/parameters/partyType'
+        - $ref: '#/components/parameters/residencyStatus'
+        - $ref: '#/components/parameters/pageNumber'
+        - $ref: '#/components/parameters/pageSize'
+        - $ref: '#/components/parameters/sortField'
+        - $ref: '#/components/parameters/sortDirection'
+      responses:
+        '200':
+          description: La consulta de clientes se completó de forma exitosa.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RetrievePartyReferenceDataDirectoryEntryListResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+        '503':
+          $ref: '#/components/responses/ServiceUnavailable'
+        '504':
+          $ref: '#/components/responses/GatewayTimeout'
+
+components:
+  parameters:
+    Request-ID:
+      name: Request-ID
+      in: header
+      description: Identificador único de la solicitud en formato UUID v3/v4.
+      required: true
+      schema:
+        maxLength: 36
+        pattern: '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[34][0-9a-fA-F]{3}-[89ab][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$'
+        type: string
+        example: 550e8400-e29b-41d4-a716-446655440000
+    partyReferenceDataDirectoryEntryId:
+      name: partyReferenceDataDirectoryEntryId
+      in: path
+      description: Identificador único de la entrada del cliente en el directorio del Party.
+      required: true
+      schema:
+        type: integer
+        format: int64
+        minimum: 1
+        example: 123
+    identifierValue:
+      name: identifierValue
+      in: query
+      description: Valor del documento de identidad del Party para filtrar resultados.
+      schema:
+        type: string
+        example: '10301554'
+    partyType:
+      name: partyType
+      in: query
+      description: Tipo de Party para filtrar resultados (Persona u Organizacion).
+      schema:
+        $ref: '#/components/schemas/PartyTypeValues'
+    residencyStatus:
+      name: residencyStatus
+      in: query
+      description: Estado de residencia del cliente para filtrar resultados.
+      schema:
+        $ref: '#/components/schemas/ResidencyStatusTypeValues'
+    pageNumber:
+      name: pageNumber
+      in: query
+      description: Número de página solicitada en la consulta paginada.
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+        example: 1
+    pageSize:
+      name: pageSize
+      in: query
+      description: Cantidad de elementos por página en la consulta paginada.
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+        example: 10
+    sortField:
+      name: sortField
+      in: query
+      description: Campo habilitado para ordenar los resultados de la consulta.
+      schema:
+        $ref: '#/components/schemas/SortFieldValues'
+    sortDirection:
+      name: sortDirection
+      in: query
+      description: Dirección de ordenamiento de los resultados (Ascendente o Descendente).
+      schema:
+        $ref: '#/components/schemas/SortDirectionValues'
+
+  schemas:
+    # ─── Esquemas de Error (Técnico / Crosscutting) ──────────────────────
+    ApiException:
+      type: object
+      description: Estructura estándar de error con código, tipo de falla y detalles técnicos asociados.
+      properties:
+        code:
+          type: string
+          description: Código que identifica el error general del sistema.
+          example: TL0001
+        description:
+          type: string
+          description: Descripción del error general ocurrido en el sistema.
+          example: Error al llamar al servicio
+        errorType:
+          type: string
+          description: Tipo de error que clasifica la falla dentro del sistema.
+          example: TECHNICAL
+        exceptionDetails:
+          type: array
+          description: Lista con los detalles asociados al error reportado.
+          items:
+            $ref: '#/components/schemas/ApiExceptionDetail'
+
+    ApiExceptionDetail:
+      type: object
+      description: Detalle técnico del error indicando componente origen, código y descripción específica.
+      properties:
+        code:
+          type: string
+          description: Código específico del error del proveedor o componente.
+          example: MB0008
+        component:
+          type: string
+          description: Nombre del componente donde ocurrió el error reportado.
+          example: component-name-v1
+        description:
+          type: string
+          description: Descripción técnica del detalle específico del error.
+          example: Codigo invalido para el canal
+
+    # ─── Control Record: Party Reference Data Directory Entry ────────────
+    #
+    # BIAN Service Domain : Party Reference Data Directory
+    # Functional Pattern  : Directory
+    # Asset Type           : Party
+    # Control Record       : PartyReferenceDataDirectoryEntry
+    # Behavior Qualifiers  : Reference, Associations, Demographics, BankRelations
+    # Action Terms         : Register (POST), Update (PUT), Retrieve (GET)
+    #
+    # Los schemas Request/Response son wrappers técnicos del Control Record.
+    # ─────────────────────────────────────────────────────────────────────
+
+    RegisterPartyReferenceDataDirectoryEntryRequest:
+      type: object
+      description: Solicitud para registrar o actualizar una entrada en el directorio de datos del Party.
+      required:
+        - partyReference
+        - partyType
+        - residencyStatus
+      properties:
+        partyReference:
+          $ref: '#/components/schemas/PartyReference'
+        partyType:
+          $ref: '#/components/schemas/PartyTypeValues'
+        residencyStatus:
+          $ref: '#/components/schemas/ResidencyStatusTypeValues'
+
+    RegisterPartyReferenceDataDirectoryEntryResponse:
+      type: object
+      description: Respuesta con el identificador del Party generado tras el registro o actualización.
+      properties:
+        partyReference:
+          $ref: '#/components/schemas/PartyReferenceIdentification'
+
+    RetrievePartyReferenceDataDirectoryEntryResponse:
+      type: object
+      description: Respuesta completa de una entrada del directorio con identificación, nombres y fechas.
+      properties:
+        partyReference:
+          $ref: '#/components/schemas/PartyReferenceWithId'
+        partyType:
+          $ref: '#/components/schemas/PartyTypeValues'
+        residencyStatus:
+          $ref: '#/components/schemas/ResidencyStatusTypeValues'
+        directoryEntryDates:
+          type: array
+          description: Fechas asociadas a la entrada del directorio.
+          items:
+            $ref: '#/components/schemas/DirectoryEntryDate'
+
+    RetrievePartyReferenceDataDirectoryEntryListResponse:
+      type: object
+      description: Respuesta paginada con la lista resumida de entradas del directorio del Party.
+      properties:
+        data:
+          type: array
+          description: Lista de entradas del directorio del Party.
+          items:
+            $ref: '#/components/schemas/PartyReferenceDataDirectoryEntry'
+        pagination:
+          $ref: '#/components/schemas/Pagination'
+
+    PartyReferenceDataDirectoryEntry:
+      type: object
+      description: Entrada del directorio del Party con identificación, tipo y estado de residencia.
+      properties:
+        partyReference:
+          $ref: '#/components/schemas/PartyReferenceWithId'
+        partyType:
+          $ref: '#/components/schemas/PartyTypeValues'
+        residencyStatus:
+          $ref: '#/components/schemas/ResidencyStatusTypeValues'
+
+    # ─── BOM: Party Reference ────────────────────────────────────────────
+    PartyReferenceWithId:
+      type: object
+      description: Referencia al Party con identificador único, documento de identidad y nombres.
+      properties:
+        partyId:
+          type: string
+          description: Identificador único del Party en el directorio.
+          example: '41030155'
+        partyIdentification:
+          $ref: '#/components/schemas/PartyIdentification'
+        partyNames:
+          type: array
+          description: Lista de nombres asociados al Party.
+          items:
+            $ref: '#/components/schemas/PartyName'
+
+    PartyReferenceIdentification:
+      type: object
+      description: Referencia simplificada del Party conteniendo únicamente su identificador generado.
+      properties:
+        partyId:
+          type: string
+          description: Identificador único del Party en el directorio.
+          example: '41030155'
+
+    PartyReference:
+      type: object
+      description: Referencia al Party con documento de identidad y nombres para registro.
+      required:
+        - partyIdentification
+        - partyNames
+      properties:
+        partyIdentification:
+          $ref: '#/components/schemas/PartyIdentification'
+        partyNames:
+          type: array
+          description: Lista de nombres asociados al Party.
+          minItems: 1
+          items:
+            $ref: '#/components/schemas/PartyName'
+
+    PartyName:
+      type: object
+      description: Nombre asociado al Party con su tipo correspondiente (nombre, apellido o razón social).
+      required:
+        - partyNameType
+        - partyName
+      properties:
+        partyNameType:
+          $ref: '#/components/schemas/PartyNameTypeValues'
+        partyName:
+          type: string
+          description: "El nombre asociado al Party según el tipo seleccionado en 'partyNameType'."
+          minLength: 2
+          maxLength: 150
+          pattern: '^[a-zA-ZáéíóúÁÉÍÓÚñÑüÜ\s\.\-]+$'
+          example: 'Ciro Alegría Bazán'
+
+    PartyIdentification:
+      type: object
+      description: Documento de identidad del Party con su tipo (DNI, pasaporte, RUC, etc.).
+      required:
+        - partyIdentificationType
+        - partyIdentification
+      properties:
+        partyIdentificationType:
+          $ref: '#/components/schemas/PartyIdentificationTypeValues'
+        partyIdentification:
+          $ref: '#/components/schemas/Identifier'
+
+    Identifier:
+      type: object
+      description: Identificador genérico reutilizable del BOM BIAN con el valor del documento.
+      required:
+        - identifierValue
+      properties:
+        identifierValue:
+          type: string
+          description: |
+            Valor del identificador único del Party.
+            La longitud varía según el tipo de documento:
+            - DNI: 8 dígitos numéricos.
+            - Carnet de Extranjería: hasta 12 caracteres alfanuméricos.
+            - RUC: 11 dígitos numéricos.
+            - Pasaporte: hasta 12 caracteres alfanuméricos.
+          minLength: 8
+          maxLength: 15
+          pattern: '^[a-zA-Z0-9]+$'
+          example: '10301554'
+
+    # ─── Esquemas de Directorio y Fechas ─────────────────────────────────
+    DirectoryEntryDate:
+      type: object
+      description: Fecha relevante del registro en el directorio con su tipo (creación o modificación).
+      properties:
+        directoryEntryDateType:
+          $ref: '#/components/schemas/DirectoryEntryDateTypeValues'
+        directoryEntryDate:
+          $ref: '#/components/schemas/DateTime'
+
+    DateTime:
+      type: string
+      format: date-time
+      description: Fecha y hora en formato ISO 8601 UTC asociada a un evento del registro.
+      example: '2026-03-12T12:02:00Z'
+
+    # ─── Esquemas de Paginación y Ordenamiento (Técnico) ─────────────────
+    Pagination:
+      type: object
+      description: Metadatos de paginación con página actual, tamaño, total de páginas y elementos.
+      properties:
+        currentPage:
+          type: integer
+          description: Número de página actual.
+          example: 1
+        pageSize:
+          type: integer
+          description: Tamaño de la página.
+          example: 10
+        totalPages:
+          type: integer
+          description: Número de páginas.
+          example: 5
+        totalItems:
+          type: integer
+          description: Total de elementos.
+          example: 50
+
+    SortDirectionValues:
+      type: string
+      enum:
+        - Ascendente
+        - Descendente
+      description: |
+        Dirección de ordenamiento de resultados.
+        - `Ascendente` - Ordena los resultados de menor a mayor.
+        - `Descendente` - Ordena los resultados de mayor a menor.
+      example: Descendente
+
+    SortFieldValues:
+      type: string
+      enum:
+        - identifierValue
+        - partyType
+        - residencyStatus
+      description: |
+        Campos habilitados para ordenar la lista de entradas del directorio.
+        - `identifierValue` - Ordena por el valor del documento de identidad.
+        - `partyType` - Ordena por el tipo de party (Persona u Organizacion).
+        - `residencyStatus` - Ordena por el estado de residencia (Nacional o Extranjero).
+      example: identifierValue
+
+    # ─── Enums de Dominio (BIAN) ─────────────────────────────────────────
+    PartyIdentificationTypeValues:
+      type: string
+      enum:
+        - CarneExtranjeria
+        - CarneIdentidad
+        - DocumentoNacionalIdentidad
+        - IdentificadorFicticio
+        - IdentificadorFicticioMigracion
+        - LibretaTributaria
+        - Pasaporte
+        - RegistroUnicoContribuyente
+      description: |
+        Tipos de documento de identidad válidos para identificar al Party.
+        - `CarneExtranjeria` - Carné de extranjería emitido por Migraciones.
+        - `CarneIdentidad` - Carné de identidad emitido para menores de edad.
+        - `DocumentoNacionalIdentidad` - Documento Nacional de Identidad (DNI).
+        - `IdentificadorFicticio` - Identificador temporal asignado por el sistema.
+        - `IdentificadorFicticioMigracion` - Identificador temporal para procesos de migración.
+        - `LibretaTributaria` - Libreta tributaria emitida por la autoridad fiscal.
+        - `Pasaporte` - Documento de viaje emitido por el país de origen.
+        - `RegistroUnicoContribuyente` - Registro Único de Contribuyentes (RUC).
+      example: 'DocumentoNacionalIdentidad'
+
+    PartyNameTypeValues:
+      type: string
+      enum:
+        - Nombre
+        - ApellidoPaterno
+        - ApellidoMaterno
+        - RazonSocial
+        - NombreFantasia
+        - NombreCompleto
+      description: |
+        Tipos de nombre aplicables al Party.
+        - `Nombre` - Primer nombre o nombres de pila de la persona.
+        - `ApellidoPaterno` - Apellido paterno de la persona.
+        - `ApellidoMaterno` - Apellido materno de la persona.
+        - `RazonSocial` - Razón social registrada de la organización.
+        - `NombreFantasia` - Nombre comercial o de fantasía de la organización.
+        - `NombreCompleto` - Nombre completo concatenado de la persona u organización.
+      example: 'NombreCompleto'
+
+    PartyTypeValues:
+      type: string
+      enum:
+        - Persona
+        - Organizacion
+      description: |
+        Tipos posibles de Party.
+        - `Persona` - Persona natural o individuo.
+        - `Organizacion` - Persona jurídica o entidad organizacional.
+      example: Persona
+
+    DirectoryEntryDateTypeValues:
+      type: string
+      enum:
+        - FechaCreacion
+        - FechaModificacion
+      description: |
+        Tipos de fecha asociadas a la entrada del directorio.
+        - `FechaCreacion` - Fecha en que se creó el registro del cliente.
+        - `FechaModificacion` - Fecha de la última modificación del registro.
+      example: FechaCreacion
+
+    ResidencyStatusTypeValues:
+      type: string
+      enum:
+        - Nacional
+        - Extranjero
+      description: |
+        Estado de residencia del cliente.
+        - `Nacional` - El cliente reside en el país.
+        - `Extranjero` - El cliente reside en el extranjero.
+      example: Nacional
+
+  responses:
+    NoContent:
+      description: La consulta fue exitosa pero no hay contenido que devolver.
+
+    BadRequest:
+      description: Los datos ingresados no cumplen con los criterios válidos.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiException'
+          example:
+            code: TL0003
+            description: Los datos ingresados no cumplen con los criterios válidos.
+            errorType: FUNCTIONAL
+
+    Unauthorized:
+      description: No tiene autorización para acceder o consumir este API.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiException'
+          example:
+            code: TL0011
+            description: No tiene autorización para acceder o consumir este API.
+            errorType: TECHNICAL
+
+    Forbidden:
+      description: No cuenta con permisos para acceder o usar esta API.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiException'
+          example:
+            code: TL0012
+            description: No cuenta con permisos para acceder o usar esta API.
+            errorType: TECHNICAL
+
+    NotFound:
+      description: No se encontró el recurso solicitado en la búsqueda.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiException'
+          example:
+            code: TL0010
+            description: No se encontró el recurso solicitado en la búsqueda.
+            errorType: FUNCTIONAL
+
+    Conflict:
+      description: La operación fue rechazada por conflicto con reglas de negocio.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiException'
+          example:
+            code: TL0005
+            description: La operación fue rechazada por conflicto con reglas de negocio.
+            errorType: FUNCTIONAL
+
+    TooManyRequests:
+      description: Operación rechazada por exceso de solicitudes simultáneas.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiException'
+          example:
+            code: TL0004
+            description: La operación se rechazó porque se realizaron demasiadas solicitudes.
+            errorType: TECHNICAL
+
+    InternalServerError:
+      description: Ocurrió un error inesperado. Por favor contactarse con Soporte Técnico.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiException'
+          example:
+            code: TL9999
+            description: Ocurrió un error inesperado. Por favor contactarse con Soporte Técnico.
+            errorType: TECHNICAL
+
+    ServiceUnavailable:
+      description: El servicio no se encuentra disponible. Por favor reintente más tarde.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiException'
+          example:
+            code: TL0008
+            description: El servicio no se encuentra disponible. Por favor reintente más tarde.
+            errorType: TECHNICAL
+
+    GatewayTimeout:
+      description: El servidor no respondió dentro del tiempo establecido.
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ApiException'
+          example:
+            code: TL0009
+            description: El servidor no respondió dentro del tiempo establecido.
+            errorType: TECHNICAL
