@@ -1,0 +1,62 @@
+# Variables
+database-server: localhost
+database-port: 1433
+database-name: db_customer
+database-username: developer
+database-password: ''
+
+
+# Application configuration
+quarkus:
+  http:
+    root-path: /api/v1
+    port: 8081
+
+  datasource:
+    devservices:
+      enabled: false
+    db-kind: mssql
+    username: ${database-username}
+    password: ${database-password}
+    jdbc:
+      url: jdbc:sqlserver://${database-server}:${database-port};databaseName=${database-name};encrypt=true;trustServerCertificate=true
+
+  hibernate-orm:
+    jdbc:
+      timezone: 'America/Lima'
+    schema-management:
+      strategy: none
+    log:
+      format-sql: true
+
+
+party-reference:
+  identification-types:
+    - code: '1'
+      name: DocumentoNacionalIdentidad
+    - code: '2'
+      name: CarneIdentidad
+    - code: '3'
+      name: CarneExtranjeria
+    - code: '4'
+      name: Pasaporte
+    - code: '5'
+      name: LibretaTributaria
+    - code: '6'
+      name: RegistroUnicoContribuyente
+    - code: '7'
+      name: IdentificadorFicticio
+    - code: 'L'
+      name: IdentificadorFicticioMigracion
+
+  party-types:
+    - code: 'P'
+      name: Persona
+    - code: 'O'
+      name: Organizacion
+
+  residency-status-types:
+    - code: 'N'
+      name: Nacional
+    - code: 'E'
+      name: Extranjero
