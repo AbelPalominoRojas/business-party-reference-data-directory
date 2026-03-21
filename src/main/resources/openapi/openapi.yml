@@ -268,7 +268,7 @@ components:
       in: query
       description: Campo habilitado para ordenar los resultados de la consulta.
       schema:
-        $ref: '#/components/schemas/SortFieldValues'
+        $ref: '#/components/schemas/PartyReferenceSortFieldValues'
     sortDirection:
       name: sortDirection
       in: query
@@ -514,8 +514,9 @@ components:
           type: integer
           description: Número de páginas.
           example: 5
-        totalItems:
+        totalElements:
           type: integer
+          format: int64
           description: Total de elementos.
           example: 50
 
@@ -530,7 +531,7 @@ components:
         - `Descendente` - Ordena los resultados de mayor a menor.
       example: Descendente
 
-    SortFieldValues:
+    PartyReferenceSortFieldValues:
       type: string
       enum:
         - identifierValue

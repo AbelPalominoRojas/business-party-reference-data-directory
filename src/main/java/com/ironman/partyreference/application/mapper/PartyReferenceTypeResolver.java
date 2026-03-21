@@ -17,40 +17,60 @@ import lombok.RequiredArgsConstructor;
 public class PartyReferenceTypeResolver {
   private final PartyReferenceProperties properties;
 
-  public PartyIdentificationTypeValues resolveIdentificationType(String documentTypeCode) {
-    var displayName = resolveDisplayName(documentTypeCode, properties.identificationTypes());
-    return resolveEnumByDisplayName(displayName, PartyIdentificationTypeValues.values());
+  public PartyIdentificationTypeValues resolveIdentificationType(String identificationTypeCode) {
+    var enumName = findConfiguredName(identificationTypeCode, properties.identificationTypes());
+    return findEnumByName(enumName, PartyIdentificationTypeValues.values());
   }
 
   public PartyTypeValues resolvePartyType(String partyTypeCode) {
-    var displayName = resolveDisplayName(partyTypeCode, properties.partyTypes());
-    return resolveEnumByDisplayName(displayName, PartyTypeValues.values());
+    var enumName = findConfiguredName(partyTypeCode, properties.partyTypes());
+    return findEnumByName(enumName, PartyTypeValues.values());
   }
 
   public ResidencyStatusTypeValues resolveResidencyStatus(String residencyStatusCode) {
-    var displayName = resolveDisplayName(residencyStatusCode, properties.residencyStatusTypes());
-    return resolveEnumByDisplayName(displayName, ResidencyStatusTypeValues.values());
+    var enumName = findConfiguredName(residencyStatusCode, properties.residencyStatusTypes());
+    return findEnumByName(enumName, ResidencyStatusTypeValues.values());
   }
 
-  private String resolveDisplayName(String sourceCode, List<PartyReferenceType> configuredTypes) {
-    if (isBlank(sourceCode)) {
+  public String resolvePartyTypeCode(PartyTypeValues partyType) {
+    return resolveCode(partyType, properties.partyTypes());
+  }
+
+  public String resolveResidencyStatusCode(ResidencyStatusTypeValues residencyStatus) {
+    return resolveCode(residencyStatus, properties.residencyStatusTypes());
+  }
+
+  private String findConfiguredName(String code, List<PartyReferenceType> configuredTypes) {
+    if (isBlank(code)) {
       return null;
     }
     return configuredTypes.stream()
-        .filter(configuredType -> sourceCode.equalsIgnoreCase(configuredType.getCode()))
+        .filter(type -> code.equalsIgnoreCase(type.getCode()))
         .findFirst()
         .map(PartyReferenceType::getName)
         .orElse(null);
   }
 
-  private <E extends Enum<E>> E resolveEnumByDisplayName(String displayName, E[] enumValues) {
-    if (isBlank(displayName)) {
+  private <E extends Enum<E>> E findEnumByName(String name, E[] enumValues) {
+    if (isBlank(name)) {
       return null;
     }
-
     return Arrays.stream(enumValues)
-        .filter(value -> displayName.equalsIgnoreCase(value.toString()))
+        .filter(value -> name.equalsIgnoreCase(value.toString()))
         .findFirst()
+        .orElse(null);
+  }
+
+  private <E extends Enum<E>> String resolveCode(
+      E enumValue, List<PartyReferenceType> configuredTypes) {
+    if (enumValue == null) {
+      return null;
+    }
+    var enumName = enumValue.toString();
+    return configuredTypes.stream()
+        .filter(type -> type.getName().equalsIgnoreCase(enumName))
+        .findFirst()
+        .map(PartyReferenceType::getCode)
         .orElse(null);
   }
 }

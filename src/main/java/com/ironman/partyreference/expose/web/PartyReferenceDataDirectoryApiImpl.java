@@ -29,9 +29,21 @@ public class PartyReferenceDataDirectoryApiImpl implements PartyReferenceDataDir
       String identifierValue,
       PartyTypeValues partyType,
       ResidencyStatusTypeValues residencyStatus,
-      SortFieldValues sortField,
+      PartyReferenceSortFieldValues sortField,
       SortDirectionValues sortDirection) {
-    return null;
+
+    var query =
+        CustomerSearchQuery.builder()
+            .pageNumber(pageNumber)
+            .pageSize(pageSize)
+            .identifierValue(identifierValue)
+            .partyType(partyType)
+            .residencyStatus(residencyStatus)
+            .sortField(sortField)
+            .sortDirection(sortDirection)
+            .build();
+
+    return Response.ok(customerService.searchCustomers(query)).build();
   }
 
   @Override

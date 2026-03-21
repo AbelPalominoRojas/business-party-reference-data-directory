@@ -10,6 +10,7 @@ import static org.mapstruct.MappingConstants.ComponentModel;
 
 import com.ironman.partyreference.application.model.api.*;
 import com.ironman.partyreference.application.model.entity.CustomerEntity;
+import com.ironman.partyreference.application.model.entity.projection.CustomerSummaryProjection;
 import java.util.List;
 import org.mapstruct.*;
 
@@ -27,7 +28,7 @@ public interface CustomerMapper {
 
   @Mapping(target = "partyId", source = "id")
   @Mapping(target = "partyIdentification", source = ".")
-  @Mapping(target = "partyNames", source = ".", qualifiedByName = "mapPartyNames")
+  @Mapping(target = "partyNames", source = ".", qualifiedByName = "mapPartyNamesFromCustomer")
   PartyReferenceWithId toPartyReferenceWithId(CustomerEntity customer);
 
   @Mapping(target = "partyIdentificationType", source = "documentType")
@@ -37,8 +38,36 @@ public interface CustomerMapper {
   @Mapping(target = "identifierValue", source = "documentNumber")
   Identifier toIdentifier(CustomerEntity customer);
 
-  @Named("mapPartyNames")
-  default List<PartyName> mapPartyNames(CustomerEntity customer) {
+  @Mapping(target = "partyReference", source = ".")
+  @Mapping(target = "partyType", source = "customerType")
+  @Mapping(target = "residencyStatus", source = "residencyStatus")
+  PartyReferenceDataDirectoryEntry toDirectoryEntry(CustomerSummaryProjection customer);
+
+  @Mapping(target = "partyId", source = "id")
+  @Mapping(target = "partyIdentification", source = ".")
+  @Mapping(
+      target = "partyNames",
+      source = ".",
+      qualifiedByName = "mapPartyNamesFromCustomerSummary")
+  PartyReferenceWithId toPartyReferenceWithId(CustomerSummaryProjection customer);
+
+  @Mapping(target = "partyIdentificationType", source = "documentType")
+  @Mapping(target = "partyIdentification", source = ".")
+  PartyIdentification toPartyIdentification(CustomerSummaryProjection customer);
+
+  @Mapping(target = "identifierValue", source = "documentNumber")
+  Identifier toIdentifier(CustomerSummaryProjection customer);
+
+  @Named("mapPartyNamesFromCustomer")
+  default List<PartyName> mapPartyNamesFromCustomer(CustomerEntity customer) {
+    if (CUSTOMER_TYPE_NATURAL_PERSON.equalsIgnoreCase(customer.getCustomerType())) {
+      return buildNaturalPersonNames(customer);
+    }
+    return buildOrganizationNames(customer);
+  }
+
+  @Named("mapPartyNamesFromCustomerSummary")
+  default List<PartyName> mapPartyNamesFromCustomerSummary(CustomerSummaryProjection customer) {
     if (CUSTOMER_TYPE_NATURAL_PERSON.equalsIgnoreCase(customer.getCustomerType())) {
       return buildNaturalPersonNames(customer);
     }
