@@ -18,7 +18,9 @@ public class PartyReferenceDataDirectoryApiImpl implements PartyReferenceDataDir
       String requestID,
       RegisterPartyReferenceDataDirectoryEntryRequest
           registerPartyReferenceDataDirectoryEntryRequest) {
-    return null;
+    var result = customerService.createCustomer(registerPartyReferenceDataDirectoryEntryRequest);
+
+    return Response.status(Response.Status.CREATED).entity(result).build();
   }
 
   @Override
@@ -64,6 +66,10 @@ public class PartyReferenceDataDirectoryApiImpl implements PartyReferenceDataDir
       Long partyReferenceDataDirectoryEntryId,
       RegisterPartyReferenceDataDirectoryEntryRequest
           registerPartyReferenceDataDirectoryEntryRequest) {
-    return null;
+    var result =
+        customerService.updateCustomer(
+            partyReferenceDataDirectoryEntryId, registerPartyReferenceDataDirectoryEntryRequest);
+
+    return Response.ok(result).build();
   }
 }

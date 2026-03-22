@@ -7,14 +7,12 @@ import static io.quarkus.panache.common.Sort.Direction;
 import com.ironman.partyreference.application.business.CustomerService;
 import com.ironman.partyreference.application.mapper.CustomerMapper;
 import com.ironman.partyreference.application.mapper.PartyReferenceTypeResolver;
-import com.ironman.partyreference.application.model.api.CustomerSearchQuery;
-import com.ironman.partyreference.application.model.api.PartyReferenceSortFieldValues;
-import com.ironman.partyreference.application.model.api.RetrievePartyReferenceDataDirectoryEntryListResponse;
-import com.ironman.partyreference.application.model.api.RetrievePartyReferenceDataDirectoryEntryResponse;
+import com.ironman.partyreference.application.model.api.*;
 import com.ironman.partyreference.application.model.entity.criteria.CustomerSearchCriteria;
 import com.ironman.partyreference.application.repository.CustomerRepository;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.transaction.Transactional;
 import java.util.Optional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -58,6 +56,34 @@ public class CustomerServiceImpl implements CustomerService {
     return new RetrievePartyReferenceDataDirectoryEntryListResponse()
         .data(result.getData())
         .pagination(result.getPagination());
+  }
+
+  @Transactional
+  @Override
+  public RegisterPartyReferenceDataDirectoryEntryResponse createCustomer(
+      RegisterPartyReferenceDataDirectoryEntryRequest request) {
+
+    var customer = customerMapper.toEntity(request);
+
+    customerRepository.persist(customer);
+
+    return customerMapper.toRegisterResponse(customer);
+  }
+
+  @Transactional
+  @Override
+  public RegisterPartyReferenceDataDirectoryEntryResponse updateCustomer(
+      Long id, RegisterPartyReferenceDataDirectoryEntryRequest request) {
+
+    var customer =
+        customerRepository
+            .findByIdOptional(id)
+            .orElseThrow(() -> new RuntimeException("Customer not found"));
+
+    customerMapper.updateEntity(customer, request);
+    customerRepository.persist(customer);
+
+    return customerMapper.toRegisterResponse(customer);
   }
 
   private static Sort resolveSortFromQuery(CustomerSearchQuery query) {

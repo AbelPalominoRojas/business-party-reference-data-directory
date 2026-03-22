@@ -40,6 +40,10 @@ public class PartyReferenceTypeResolver {
     return resolveCode(residencyStatus, properties.residencyStatusTypes());
   }
 
+  public String resolveIdentificationTypeCode(PartyIdentificationTypeValues identificationType) {
+    return resolveCode(identificationType, properties.identificationTypes());
+  }
+
   private String findConfiguredName(String code, List<PartyReferenceType> configuredTypes) {
     if (isBlank(code)) {
       return null;

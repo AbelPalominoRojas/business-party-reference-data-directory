@@ -4,7 +4,10 @@ import static com.ironman.partyreference.application.mapper.PartyReferenceBuilde
 import static com.ironman.partyreference.application.mapper.PartyReferenceBuilder.buildOrganizationNames;
 import static com.ironman.partyreference.application.model.api.DirectoryEntryDateTypeValues.FECHA_CREACION;
 import static com.ironman.partyreference.application.model.api.DirectoryEntryDateTypeValues.FECHA_MODIFICACION;
+import static com.ironman.partyreference.application.model.api.PartyNameTypeValues.*;
+import static com.ironman.partyreference.application.model.api.PartyTypeValues.PERSONA;
 import static com.ironman.partyreference.application.util.AppUtils.buildDirectoryEntryDate;
+import static com.ironman.partyreference.application.util.AppUtils.findNameByType;
 import static com.ironman.partyreference.application.util.Constants.CUSTOMER_TYPE_NATURAL_PERSON;
 import static org.mapstruct.MappingConstants.ComponentModel;
 
@@ -58,6 +61,28 @@ public interface CustomerMapper {
   @Mapping(target = "identifierValue", source = "documentNumber")
   Identifier toIdentifier(CustomerSummaryProjection customer);
 
+  @Mapping(target = "partyReference.partyId", source = "id")
+  RegisterPartyReferenceDataDirectoryEntryResponse toRegisterResponse(CustomerEntity customer);
+
+  @Mapping(
+      target = "documentType",
+      source = "partyReference.partyIdentification.partyIdentificationType")
+  @Mapping(
+      target = "documentNumber",
+      source = "partyReference.partyIdentification.partyIdentification.identifierValue")
+  @Mapping(target = "name", ignore = true)
+  @Mapping(target = "paternalSurname", ignore = true)
+  @Mapping(target = "maternalSurname", ignore = true)
+  @Mapping(target = "tradeName", ignore = true)
+  @Mapping(target = "customerType", source = "partyType")
+  @Mapping(target = "residencyStatus", source = "residencyStatus")
+  CustomerEntity toEntity(RegisterPartyReferenceDataDirectoryEntryRequest request);
+
+  @InheritConfiguration(name = "toEntity")
+  void updateEntity(
+      @MappingTarget CustomerEntity customer,
+      RegisterPartyReferenceDataDirectoryEntryRequest request);
+
   @Named("mapPartyNamesFromCustomer")
   default List<PartyName> mapPartyNamesFromCustomer(CustomerEntity customer) {
     if (CUSTOMER_TYPE_NATURAL_PERSON.equalsIgnoreCase(customer.getCustomerType())) {
@@ -79,5 +104,19 @@ public interface CustomerMapper {
     return List.of(
         buildDirectoryEntryDate(customer.getCreatedAt(), FECHA_CREACION),
         buildDirectoryEntryDate(customer.getUpdatedAt(), FECHA_MODIFICACION));
+  }
+
+  @AfterMapping
+  default void mapNameFields(
+      RegisterPartyReferenceDataDirectoryEntryRequest request,
+      @MappingTarget CustomerEntity customer) {
+    var partyNames = request.getPartyReference().getPartyNames();
+
+    var nameType = (PERSONA == request.getPartyType()) ? NOMBRE : RAZON_SOCIAL;
+    customer.setName(findNameByType(partyNames, nameType));
+
+    customer.setPaternalSurname(findNameByType(partyNames, APELLIDO_PATERNO));
+    customer.setMaternalSurname(findNameByType(partyNames, APELLIDO_MATERNO));
+    customer.setTradeName(findNameByType(partyNames, NOMBRE_FANTASIA));
   }
 }

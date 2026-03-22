@@ -1,8 +1,6 @@
 package com.ironman.partyreference.application.business;
 
-import com.ironman.partyreference.application.model.api.CustomerSearchQuery;
-import com.ironman.partyreference.application.model.api.RetrievePartyReferenceDataDirectoryEntryListResponse;
-import com.ironman.partyreference.application.model.api.RetrievePartyReferenceDataDirectoryEntryResponse;
+import com.ironman.partyreference.application.model.api.*;
 import java.util.Optional;
 
 public interface CustomerService {
@@ -10,4 +8,10 @@ public interface CustomerService {
   Optional<RetrievePartyReferenceDataDirectoryEntryResponse> getCustomerById(Long id);
 
   RetrievePartyReferenceDataDirectoryEntryListResponse searchCustomers(CustomerSearchQuery query);
+
+  RegisterPartyReferenceDataDirectoryEntryResponse createCustomer(
+      RegisterPartyReferenceDataDirectoryEntryRequest request);
+
+  RegisterPartyReferenceDataDirectoryEntryResponse updateCustomer(
+      Long id, RegisterPartyReferenceDataDirectoryEntryRequest request);
 }
