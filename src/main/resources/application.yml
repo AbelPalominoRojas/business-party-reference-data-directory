@@ -33,6 +33,25 @@ quarkus:
   log:
     level: INFO # Nivel global de logs (puede ser DEBUG, INFO, WARN, ERROR, etc.)
 
+# ============================================================
+# Perfil DEV: H2 en memoria (sin necesidad de SQL Server local)
+# Se activa al correr: ./mvnw quarkus:dev
+# ============================================================
+"%dev":
+  quarkus:
+    datasource:
+      devservices:
+        enabled: false
+      db-kind: h2
+      username: sa
+      password:
+      jdbc:
+        url: jdbc:h2:mem:testdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+
+    hibernate-orm:
+      schema-management:
+        strategy: drop-and-create
+
 party-reference:
   identification-types:
     - code: '1'

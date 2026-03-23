@@ -78,6 +78,12 @@
             <artifactId>quarkus-jdbc-mssql</artifactId>
         </dependency>
 
+        <!-- H2 in-memory database for local development -->
+        <dependency>
+            <groupId>io.quarkus</groupId>
+            <artifactId>quarkus-jdbc-h2</artifactId>
+        </dependency>
+
         <!-- Lombok and MapStruct for code generation -->
         <dependency>
             <groupId>org.projectlombok</groupId>
