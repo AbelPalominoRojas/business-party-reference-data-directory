@@ -4,6 +4,7 @@ import static com.ironman.partyreference.application.util.AppUtils.isBlank;
 
 import com.ironman.partyreference.application.model.entity.CustomerEntity;
 import com.ironman.partyreference.application.model.entity.criteria.CustomerSearchCriteria;
+import com.ironman.partyreference.application.model.entity.projection.CustomerIdentificationProjection;
 import com.ironman.partyreference.application.model.entity.projection.CustomerSummaryProjection;
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
@@ -13,11 +14,14 @@ import java.util.*;
 @ApplicationScoped
 public class CustomerRepository implements PanacheRepositoryBase<CustomerEntity, Long> {
 
-  public Optional<CustomerEntity> findByDocumentTypeAndNumber(String documentType, String number) {
+  public Optional<CustomerIdentificationProjection> findByDocumentTypeAndNumber(
+      String documentType, String number) {
     String whereClause = "documentType = :documentType AND documentNumber = :documentNumber";
     Map<String, Object> params = Map.of("documentType", documentType, "documentNumber", number);
 
-    return find(whereClause, params).firstResultOptional();
+    return find(whereClause, params)
+        .project(CustomerIdentificationProjection.class)
+        .firstResultOptional();
   }
 
   public PanacheQuery<CustomerSummaryProjection> searchCustomers(CustomerSearchCriteria criteria) {

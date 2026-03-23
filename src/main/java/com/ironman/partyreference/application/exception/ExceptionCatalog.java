@@ -20,11 +20,11 @@ public enum ExceptionCatalog {
       ExceptionType.INTERNAL_SERVER_ERROR,
       COMPONENT_CUSTOMER_SERVICE,
       "An unexpected error occurred, please try again later."),
-  CUSTOMER_NOT_FOUND(
+  CUSTOMER_NOT_EXISTS(
       "BPRDD0003",
       ExceptionType.CONFLICT,
       COMPONENT_CUSTOMER_SERVICE,
-      "Customer not found with id: %s"),
+      "Customer with id '%s' does not exist."),
   CUSTOMER_DUPLICATE_IDENTIFIER(
       "BPRDD0004",
       ExceptionType.CONFLICT,

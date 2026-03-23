@@ -32,12 +32,6 @@ quarkus:
 
   log:
     level: INFO # Nivel global de logs (puede ser DEBUG, INFO, WARN, ERROR, etc.)
-    console:
-      format: "%d{yyyy-MM-dd HH:mm:ss} %-5p [%c{2.}] (%t) %s%e%n" # Formato del log
-
-    category:
-      "WebApplicationException":
-        level: DEBUG
 
 party-reference:
   identification-types:

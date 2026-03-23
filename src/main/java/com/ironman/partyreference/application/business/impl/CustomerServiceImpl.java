@@ -12,6 +12,7 @@ import com.ironman.partyreference.application.mapper.PartyReferenceTypeResolver;
 import com.ironman.partyreference.application.model.api.*;
 import com.ironman.partyreference.application.model.entity.CustomerEntity;
 import com.ironman.partyreference.application.model.entity.criteria.CustomerSearchCriteria;
+import com.ironman.partyreference.application.model.entity.projection.CustomerIdentificationProjection;
 import com.ironman.partyreference.application.repository.CustomerRepository;
 import io.quarkus.panache.common.Sort;
 import jakarta.enterprise.context.ApplicationScoped;
@@ -97,23 +98,29 @@ public class CustomerServiceImpl implements CustomerService {
   @Override
   public RegisterPartyReferenceDataDirectoryEntryResponse updateCustomer(
       Long id, RegisterPartyReferenceDataDirectoryEntryRequest request) {
-    try {
-      var customer =
-          customerRepository
-              .findByIdOptional(id)
-              .orElseThrow(() -> CUSTOMER_NOT_FOUND.buildException(id));
+    var customer = findRequiredCustomer(id);
 
+    try {
       validateDuplicateIdentifier(request.getPartyReference().getPartyIdentification(), id);
       customerMapper.updateEntity(customer, request);
-
       customerRepository.persist(customer);
-
       return customerMapper.toRegisterResponse(customer);
     } catch (ConstraintViolationException e) {
       log.error("Database constraint violation while updating customer with id: {}", id, e);
       throw buildDuplicateIdentifierException(request.getPartyReference().getPartyIdentification());
     } catch (HibernateException e) {
       log.error("Database error while updating customer with id: {}", id, e);
+      throw DATABASE_ERROR.buildException();
+    }
+  }
+
+  private CustomerEntity findRequiredCustomer(Long id) {
+    try {
+      return customerRepository
+          .findByIdOptional(id)
+          .orElseThrow(() -> CUSTOMER_NOT_EXISTS.buildException(id));
+    } catch (HibernateException e) {
+      log.error("Database error while retrieving customer with id: {}", id, e);
       throw DATABASE_ERROR.buildException();
     }
   }
@@ -140,7 +147,7 @@ public class CustomerServiceImpl implements CustomerService {
             });
   }
 
-  private Optional<CustomerEntity> findCustomerByIdentifier(
+  private Optional<CustomerIdentificationProjection> findCustomerByIdentifier(
       PartyIdentification partyIdentification) {
     var identificationType = partyIdentification.getPartyIdentificationType();
     String documentType =
