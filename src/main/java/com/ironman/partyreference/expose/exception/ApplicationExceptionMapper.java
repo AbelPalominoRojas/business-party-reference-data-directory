@@ -63,6 +63,7 @@ public class ApplicationExceptionMapper implements ExceptionMapper<ApplicationEx
     return switch (exceptionType) {
       case BAD_REQUEST -> Status.BAD_REQUEST;
       case NOT_FOUND -> Status.NOT_FOUND;
+      case CONFLICT -> Status.CONFLICT;
       default -> Status.INTERNAL_SERVER_ERROR;
     };
   }

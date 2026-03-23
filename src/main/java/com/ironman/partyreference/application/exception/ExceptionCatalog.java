@@ -22,7 +22,7 @@ public enum ExceptionCatalog {
       "An unexpected error occurred, please try again later."),
   CUSTOMER_NOT_FOUND(
       "BPRDD0003",
-      ExceptionType.NOT_FOUND,
+      ExceptionType.CONFLICT,
       COMPONENT_CUSTOMER_SERVICE,
       "Customer not found with id: %s"),
   CUSTOMER_DUPLICATE_IDENTIFIER(
