@@ -1,0 +1,378 @@
+{
+	"info": {
+		"_postman_id": "9c5723ea-b89d-41f7-a766-5a584af9ecfd",
+		"name": "party-reference-data-directory",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "/{id}/retrieve (Persona)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Request-ID",
+						"value": "bb83da56-6bb4-4cf6-a10f-f10b1104084f",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/api/v1/party-reference-data-directory/:partyReferenceDataDirectoryEntryId/retrieve",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"v1",
+						"party-reference-data-directory",
+						":partyReferenceDataDirectoryEntryId",
+						"retrieve"
+					],
+					"variable": [
+						{
+							"key": "partyReferenceDataDirectoryEntryId",
+							"value": "2"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/{id}/retrieve (Organizacion)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Request-ID",
+						"value": "bb83da56-6bb4-4cf6-a10f-f10b1104084f",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/api/v1/party-reference-data-directory/:partyReferenceDataDirectoryEntryId/retrieve",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"v1",
+						"party-reference-data-directory",
+						":partyReferenceDataDirectoryEntryId",
+						"retrieve"
+					],
+					"variable": [
+						{
+							"key": "partyReferenceDataDirectoryEntryId",
+							"value": "80"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/{id}/retrieve (NotFound)",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Request-ID",
+						"value": "bb83da56-6bb4-4cf6-a10f-f10b1104084f",
+						"type": "default"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/api/v1/party-reference-data-directory/:partyReferenceDataDirectoryEntryId/retrieve",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"v1",
+						"party-reference-data-directory",
+						":partyReferenceDataDirectoryEntryId",
+						"retrieve"
+					],
+					"variable": [
+						{
+							"key": "partyReferenceDataDirectoryEntryId",
+							"value": "800"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/retrieve",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Request-ID",
+						"value": "bb83da56-6bb4-4cf6-a10f-f10b1104084f",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:8081/api/v1/party-reference-data-directory/retrieve?pageNumber=1&pageSize=10&identifierValue=90&partyType=Persona&residencyStatus=Nacional&sortField=identifierValue&sortDirection=Descendente",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"v1",
+						"party-reference-data-directory",
+						"retrieve"
+					],
+					"query": [
+						{
+							"key": "pageNumber",
+							"value": "1"
+						},
+						{
+							"key": "pageSize",
+							"value": "10"
+						},
+						{
+							"key": "identifierValue",
+							"value": "90"
+						},
+						{
+							"key": "partyType",
+							"value": "Persona"
+						},
+						{
+							"key": "residencyStatus",
+							"value": "Nacional"
+						},
+						{
+							"key": "sortField",
+							"value": "identifierValue"
+						},
+						{
+							"key": "sortDirection",
+							"value": "Descendente"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/register (Persona)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Request-ID",
+						"value": "af0295df-164d-400b-8ae6-2cc7174b68d0",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"partyReference\": {\n    \"partyIdentification\": {\n      \"partyIdentificationType\": \"DocumentoNacionalIdentidad\",\n      \"partyIdentification\": {\n        \"identifierValue\": \"28456782\"\n      }\n    },\n    \"partyNames\": [\n      {\n        \"partyNameType\": \"Nombre\",\n        \"partyName\": \"Abel\"\n      },\n      {\n        \"partyNameType\": \"ApellidoPaterno\",\n        \"partyName\": \"Palomino\"\n      },\n      {\n        \"partyNameType\": \"ApellidoMaterno\",\n        \"partyName\": \"Rojas\"\n      }\n    ]\n  },\n  \"partyType\": \"Persona\",\n  \"residencyStatus\": \"Nacional\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/v1/party-reference-data-directory/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"v1",
+						"party-reference-data-directory",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/register (Organizacion)",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Request-ID",
+						"value": "b2d08bc9-89a5-4140-a99c-d99eac201a59",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"partyReference\": {\n    \"partyIdentification\": {\n      \"partyIdentificationType\": \"RegistroUnicoContribuyente\",\n      \"partyIdentification\": {\n        \"identifierValue\": \"20284567826\"\n      }\n    },\n    \"partyNames\": [\n      {\n        \"partyNameType\": \"RazonSocial\",\n        \"partyName\": \"Rojas S.A.C\"\n      },\n      {\n        \"partyNameType\": \"NombreFantasia\",\n        \"partyName\": \"Grupo Rojitas S.A.C\"\n      }\n    ]\n  },\n  \"partyType\": \"Organizacion\",\n  \"residencyStatus\": \"Nacional\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/v1/party-reference-data-directory/register",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"v1",
+						"party-reference-data-directory",
+						"register"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/{id}/update (Persona)",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Request-ID",
+						"value": "bd8ef98c-0a14-406f-9a43-f3ef48424658",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"partyReference\": {\n    \"partyIdentification\": {\n      \"partyIdentificationType\": \"DocumentoNacionalIdentidad\",\n      \"partyIdentification\": {\n        \"identifierValue\": \"28456782\"\n      }\n    },\n    \"partyNames\": [\n      {\n        \"partyNameType\": \"Nombre\",\n        \"partyName\": \"J. Abel\"\n      },\n      {\n        \"partyNameType\": \"ApellidoPaterno\",\n        \"partyName\": \"Palomino\"\n      },\n      {\n        \"partyNameType\": \"ApellidoMaterno\",\n        \"partyName\": \"Rojas\"\n      }\n    ]\n  },\n  \"partyType\": \"Persona\",\n  \"residencyStatus\": \"Nacional\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/v1/party-reference-data-directory/:partyReferenceDataDirectoryEntryId/update",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"v1",
+						"party-reference-data-directory",
+						":partyReferenceDataDirectoryEntryId",
+						"update"
+					],
+					"variable": [
+						{
+							"key": "partyReferenceDataDirectoryEntryId",
+							"value": "10002"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/{id}/update (Persona Duplicate)",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Request-ID",
+						"value": "bd8ef98c-0a14-406f-9a43-f3ef48424658",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"partyReference\": {\n    \"partyIdentification\": {\n      \"partyIdentificationType\": \"DocumentoNacionalIdentidad\",\n      \"partyIdentification\": {\n        \"identifierValue\": \"45678912\"\n      }\n    },\n    \"partyNames\": [\n      {\n        \"partyNameType\": \"Nombre\",\n        \"partyName\": \"J. Abel\"\n      },\n      {\n        \"partyNameType\": \"ApellidoPaterno\",\n        \"partyName\": \"Palomino\"\n      },\n      {\n        \"partyNameType\": \"ApellidoMaterno\",\n        \"partyName\": \"Rojas\"\n      }\n    ]\n  },\n  \"partyType\": \"Persona\",\n  \"residencyStatus\": \"Nacional\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/v1/party-reference-data-directory/:partyReferenceDataDirectoryEntryId/update",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"v1",
+						"party-reference-data-directory",
+						":partyReferenceDataDirectoryEntryId",
+						"update"
+					],
+					"variable": [
+						{
+							"key": "partyReferenceDataDirectoryEntryId",
+							"value": "10002"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "/{id}/update (Organizacion)",
+			"request": {
+				"method": "PUT",
+				"header": [
+					{
+						"key": "Request-ID",
+						"value": "d5f5968d-6d2f-4db6-a2cd-780e98c3c5c7",
+						"type": "default"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"partyReference\": {\n    \"partyIdentification\": {\n      \"partyIdentificationType\": \"RegistroUnicoContribuyente\",\n      \"partyIdentification\": {\n        \"identifierValue\": \"20284567826\"\n      }\n    },\n    \"partyNames\": [\n      {\n        \"partyNameType\": \"RazonSocial\",\n        \"partyName\": \"Rojas S.A.C\"\n      },\n      {\n        \"partyNameType\": \"NombreFantasia\",\n        \"partyName\": \"Grupo Rojitas\"\n      }\n    ]\n  },\n  \"partyType\": \"Organizacion\",\n  \"residencyStatus\": \"Nacional\"\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:8081/api/v1/party-reference-data-directory/:partyReferenceDataDirectoryEntryId/update",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "8081",
+					"path": [
+						"api",
+						"v1",
+						"party-reference-data-directory",
+						":partyReferenceDataDirectoryEntryId",
+						"update"
+					],
+					"variable": [
+						{
+							"key": "partyReferenceDataDirectoryEntryId",
+							"value": "10003"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
