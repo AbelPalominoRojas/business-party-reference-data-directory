@@ -1,13 +1,17 @@
 package com.ironman.partyreference.application.business.impl;
 
 import static com.ironman.partyreference.application.common.pagination.PaginationHelper.*;
+import static com.ironman.partyreference.application.exception.ExceptionCatalog.CUSTOMER_DUPLICATE_IDENTIFIER;
+import static com.ironman.partyreference.application.exception.ExceptionCatalog.CUSTOMER_NOT_FOUND;
 import static com.ironman.partyreference.application.model.entity.enums.CustomerSortableField.resolveEntityFieldName;
 import static io.quarkus.panache.common.Sort.Direction;
 
 import com.ironman.partyreference.application.business.CustomerService;
+import com.ironman.partyreference.application.exception.ApplicationException;
 import com.ironman.partyreference.application.mapper.CustomerMapper;
 import com.ironman.partyreference.application.mapper.PartyReferenceTypeResolver;
 import com.ironman.partyreference.application.model.api.*;
+import com.ironman.partyreference.application.model.entity.CustomerEntity;
 import com.ironman.partyreference.application.model.entity.criteria.CustomerSearchCriteria;
 import com.ironman.partyreference.application.repository.CustomerRepository;
 import io.quarkus.panache.common.Sort;
@@ -63,6 +67,7 @@ public class CustomerServiceImpl implements CustomerService {
   public RegisterPartyReferenceDataDirectoryEntryResponse createCustomer(
       RegisterPartyReferenceDataDirectoryEntryRequest request) {
 
+    validateDuplicateIdentifier(request.getPartyReference().getPartyIdentification(), null);
     var customer = customerMapper.toEntity(request);
 
     customerRepository.persist(customer);
@@ -78,9 +83,11 @@ public class CustomerServiceImpl implements CustomerService {
     var customer =
         customerRepository
             .findByIdOptional(id)
-            .orElseThrow(() -> new RuntimeException("Customer not found"));
+            .orElseThrow(() -> CUSTOMER_NOT_FOUND.buildException(id));
 
+    validateDuplicateIdentifier(request.getPartyReference().getPartyIdentification(), id);
     customerMapper.updateEntity(customer, request);
+
     customerRepository.persist(customer);
 
     return customerMapper.toRegisterResponse(customer);
@@ -96,5 +103,33 @@ public class CustomerServiceImpl implements CustomerService {
 
     String fieldName = resolveEntityFieldName(apiFieldName);
     return Sort.by(fieldName, direction);
+  }
+
+  public void validateDuplicateIdentifier(
+      PartyIdentification partyIdentification, Long currentCustomerId) {
+    findCustomerByIdentifier(partyIdentification)
+        .filter(existingCustomer -> !existingCustomer.getId().equals(currentCustomerId))
+        .ifPresent(
+            conflictingCustomer -> {
+              throw buildDuplicateIdentifierException(partyIdentification);
+            });
+  }
+
+  private Optional<CustomerEntity> findCustomerByIdentifier(
+      PartyIdentification partyIdentification) {
+    var identificationType = partyIdentification.getPartyIdentificationType();
+    String documentType =
+        partyReferenceTypeResolver.resolveIdentificationTypeCode(identificationType);
+    String documentNumber = partyIdentification.getPartyIdentification().getIdentifierValue();
+
+    return customerRepository.findByDocumentTypeAndNumber(documentType, documentNumber);
+  }
+
+  private ApplicationException buildDuplicateIdentifierException(
+      PartyIdentification partyIdentification) {
+    var identificationType = partyIdentification.getPartyIdentificationType();
+    String documentNumber = partyIdentification.getPartyIdentification().getIdentifierValue();
+
+    return CUSTOMER_DUPLICATE_IDENTIFIER.buildException(identificationType, documentNumber);
   }
 }

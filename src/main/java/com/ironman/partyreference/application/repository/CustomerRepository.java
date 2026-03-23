@@ -8,13 +8,17 @@ import com.ironman.partyreference.application.model.entity.projection.CustomerSu
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.hibernate.orm.panache.PanacheRepositoryBase;
 import jakarta.enterprise.context.ApplicationScoped;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @ApplicationScoped
 public class CustomerRepository implements PanacheRepositoryBase<CustomerEntity, Long> {
+
+  public Optional<CustomerEntity> findByDocumentTypeAndNumber(String documentType, String number) {
+    String whereClause = "documentType = :documentType AND documentNumber = :documentNumber";
+    Map<String, Object> params = Map.of("documentType", documentType, "documentNumber", number);
+
+    return find(whereClause, params).firstResultOptional();
+  }
 
   public PanacheQuery<CustomerSummaryProjection> searchCustomers(CustomerSearchCriteria criteria) {
     Map<String, Object> params = new HashMap<>();

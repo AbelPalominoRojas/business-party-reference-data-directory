@@ -278,14 +278,10 @@ components:
 
   schemas:
     # ─── Esquemas de Error (Técnico / Crosscutting) ──────────────────────
-    ApiException:
+    ApiExceptionResponse:
       type: object
       description: Estructura estándar de error con código, tipo de falla y detalles técnicos asociados.
       properties:
-        code:
-          type: string
-          description: Código que identifica el error general del sistema.
-          example: TL0001
         description:
           type: string
           description: Descripción del error general ocurrido en el sistema.
@@ -307,7 +303,7 @@ components:
         code:
           type: string
           description: Código específico del error del proveedor o componente.
-          example: MB0008
+          example: PRDD0001
         component:
           type: string
           description: Nombre del componente donde ocurrió el error reportado.
@@ -629,96 +625,123 @@ components:
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ApiException'
+            $ref: '#/components/schemas/ApiExceptionResponse'
           example:
-            code: TL0003
             description: Los datos ingresados no cumplen con los criterios válidos.
             errorType: FUNCTIONAL
+            exceptionDetails:
+              - code: PRDD0001
+                component: party-reference-data-directory-service
+                description: El valor del documento de identidad no cumple con el formato requerido.
 
     Unauthorized:
       description: No tiene autorización para acceder o consumir este API.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ApiException'
+            $ref: '#/components/schemas/ApiExceptionResponse'
           example:
-            code: TL0011
             description: No tiene autorización para acceder o consumir este API.
             errorType: TECHNICAL
+            exceptionDetails:
+              - code: AUTH0001
+                component: authentication-service
+                description: Authentication failed due to invalid credentials or missing token.
 
     Forbidden:
       description: No cuenta con permisos para acceder o usar esta API.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ApiException'
+            $ref: '#/components/schemas/ApiExceptionResponse'
           example:
-            code: TL0012
             description: No cuenta con permisos para acceder o usar esta API.
             errorType: TECHNICAL
+            exceptionDetails:
+              - code: AUTHZ0001
+                component: authorization-service
+                description: User does not have the required role to access this resource.
 
     NotFound:
       description: No se encontró el recurso solicitado en la búsqueda.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ApiException'
+            $ref: '#/components/schemas/ApiExceptionResponse'
           example:
-            code: TL0010
             description: No se encontró el recurso solicitado en la búsqueda.
             errorType: FUNCTIONAL
+            exceptionDetails:
+              - code: PRDD0002
+                component: party-reference-data-directory-service
+                description: No entry found resource.
 
     Conflict:
       description: La operación fue rechazada por conflicto con reglas de negocio.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ApiException'
+            $ref: '#/components/schemas/ApiExceptionResponse'
           example:
-            code: TL0005
             description: La operación fue rechazada por conflicto con reglas de negocio.
             errorType: FUNCTIONAL
+            exceptionDetails:
+              - code: PRDD0003
+                component: party-reference-data-directory-service
+                description: A client with the same document already exists in the directory.
 
     TooManyRequests:
       description: Operación rechazada por exceso de solicitudes simultáneas.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ApiException'
+            $ref: '#/components/schemas/ApiExceptionResponse'
           example:
-            code: TL0004
             description: La operación se rechazó porque se realizaron demasiadas solicitudes.
             errorType: TECHNICAL
+            exceptionDetails:
+              - code: RL0001
+                component: rate-limiter
+                description: Too many requests from this client. Please try again later.
 
     InternalServerError:
       description: Ocurrió un error inesperado. Por favor contactarse con Soporte Técnico.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ApiException'
+            $ref: '#/components/schemas/ApiExceptionResponse'
           example:
-            code: TL9999
             description: Ocurrió un error inesperado. Por favor contactarse con Soporte Técnico.
             errorType: TECHNICAL
+            exceptionDetails:
+              - code: PRDD0000
+                component: party-reference-data-directory-service
+                description: Null pointer exception at component XYZ while processing the request.
 
     ServiceUnavailable:
       description: El servicio no se encuentra disponible. Por favor reintente más tarde.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ApiException'
+            $ref: '#/components/schemas/ApiExceptionResponse'
           example:
-            code: TL0008
             description: El servicio no se encuentra disponible. Por favor reintente más tarde.
             errorType: TECHNICAL
+            exceptionDetails:
+              - code: PRDD0004
+                component: party-reference-data-directory-service
+                description: The service is currently undergoing maintenance.
 
     GatewayTimeout:
       description: El servidor no respondió dentro del tiempo establecido.
       content:
         application/json:
           schema:
-            $ref: '#/components/schemas/ApiException'
+            $ref: '#/components/schemas/ApiExceptionResponse'
           example:
-            code: TL0009
             description: El servidor no respondió dentro del tiempo establecido.
             errorType: TECHNICAL
+            exceptionDetails:
+              - code: PRDD0005
+                component: party-reference-data-directory-service
+                description: The request timed out while waiting for a response from the server.
