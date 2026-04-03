@@ -65,7 +65,7 @@ public class PartyReferenceBuilder {
   }
 
   private static PartyName createOrganizationNameEntry(String organizationName) {
-    return buildPartyName(organizationName, NOMBRE_COMPLETO);
+    return buildPartyName(organizationName, RAZON_SOCIAL);
   }
 
   private static PartyName createTradeNameEntry(String tradeName) {
