@@ -1,0 +1,41 @@
+{
+  "partyReference": {
+    "partyId": "2",
+    "partyIdentification": {
+      "partyIdentificationType": "DocumentoNacionalIdentidad",
+      "partyIdentification": {
+        "identifierValue": "45678912"
+      }
+    },
+    "partyNames": [
+      {
+        "partyNameType": "Nombre",
+        "partyName": "María Elena"
+      },
+      {
+        "partyNameType": "ApellidoPaterno",
+        "partyName": "Rodríguez"
+      },
+      {
+        "partyNameType": "ApellidoMaterno",
+        "partyName": "Fernández"
+      },
+      {
+        "partyNameType": "NombreCompleto",
+        "partyName": "María Elena Rodríguez Fernández"
+      }
+    ]
+  },
+  "partyType": "Persona",
+  "residencyStatus": "Nacional",
+  "directoryEntryDates": [
+    {
+      "directoryEntryDateType": "FechaCreacion",
+      "directoryEntryDate": "2026-03-14T18:33:35.69"
+    },
+    {
+      "directoryEntryDateType": "FechaModificacion",
+      "directoryEntryDate": null
+    }
+  ]
+}

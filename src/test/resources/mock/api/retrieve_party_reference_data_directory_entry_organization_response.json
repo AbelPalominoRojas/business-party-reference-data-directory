@@ -1,0 +1,33 @@
+{
+  "partyReference": {
+    "partyId": "80",
+    "partyIdentification": {
+      "partyIdentificationType": "RegistroUnicoContribuyente",
+      "partyIdentification": {
+        "identifierValue": "20330791412"
+      }
+    },
+    "partyNames": [
+      {
+        "partyNameType": "NombreCompleto",
+        "partyName": "Saga Falabella S.A."
+      },
+      {
+        "partyNameType": "NombreFantasia",
+        "partyName": "Falabella"
+      }
+    ]
+  },
+  "partyType": "Organizacion",
+  "residencyStatus": "Nacional",
+  "directoryEntryDates": [
+    {
+      "directoryEntryDateType": "FechaCreacion",
+      "directoryEntryDate": "2026-03-14T18:33:35.69"
+    },
+    {
+      "directoryEntryDateType": "FechaModificacion",
+      "directoryEntryDate": null
+    }
+  ]
+}

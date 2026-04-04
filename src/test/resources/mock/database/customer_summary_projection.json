@@ -1,0 +1,24 @@
+[
+  {
+    "id": 1,
+    "documentType": "1",
+    "documentNumber": "Falabella",
+    "name": "María Elena",
+    "paternalSurname": "Rodríguez",
+    "maternalSurname": "Fernández",
+    "tradeName": null,
+    "customerType": "P",
+    "residencyStatus": "N"
+  },
+  {
+    "id": 2,
+    "documentType": "6",
+    "documentNumber": "20330791412",
+    "name": "Saga Falabella S.A.",
+    "paternalSurname": null,
+    "maternalSurname": null,
+    "tradeName": "Falabella",
+    "customerType": "O",
+    "residencyStatus": "N"
+  }
+]
