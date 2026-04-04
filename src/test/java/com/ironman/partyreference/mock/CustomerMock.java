@@ -7,10 +7,9 @@ import com.ironman.partyreference.application.model.entity.criteria.CustomerSear
 import com.ironman.partyreference.application.model.entity.projection.CustomerIdentificationProjection;
 import com.ironman.partyreference.application.model.entity.projection.CustomerSummaryProjection;
 import com.ironman.partyreference.util.JsonFileReader;
-import java.util.List;
-
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
+import java.util.List;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -64,8 +63,8 @@ public class CustomerMock {
 
   public static CustomerSearchCriteria getSearchCriteriaWithoutFilters() {
     return CustomerSearchCriteria.builder()
-            .page(Page.of(0, 10))
-            .sort(Sort.by("documentNumber").descending())
-            .build();
+        .page(Page.of(0, 10))
+        .sort(Sort.by("documentNumber").descending())
+        .build();
   }
 }

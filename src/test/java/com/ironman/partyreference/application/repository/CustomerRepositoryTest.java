@@ -1,5 +1,11 @@
 package com.ironman.partyreference.application.repository;
 
+import static com.ironman.partyreference.mock.CustomerMock.*;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.BDDMockito.*;
+
 import com.ironman.partyreference.application.model.entity.CustomerEntity;
 import com.ironman.partyreference.application.model.entity.criteria.CustomerSearchCriteria;
 import com.ironman.partyreference.application.model.entity.projection.CustomerIdentificationProjection;
@@ -7,6 +13,9 @@ import com.ironman.partyreference.application.model.entity.projection.CustomerSu
 import io.quarkus.hibernate.orm.panache.PanacheQuery;
 import io.quarkus.panache.common.Page;
 import io.quarkus.panache.common.Sort;
+import java.util.Map;
+import java.util.Optional;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,16 +27,6 @@ import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.util.Map;
-import java.util.Optional;
-import java.util.stream.Stream;
-
-import static com.ironman.partyreference.mock.CustomerMock.*;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.BDDMockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class CustomerRepositoryTest {
@@ -46,8 +45,7 @@ class CustomerRepositoryTest {
   private static Stream<Arguments> provideSearchCriteria() {
     return Stream.of(
         Arguments.of(getSearchCriteriaWithFilters()),
-        Arguments.of(getSearchCriteriaWithoutFilters())
-    );
+        Arguments.of(getSearchCriteriaWithoutFilters()));
   }
 
   @Test
@@ -91,8 +89,8 @@ class CustomerRepositoryTest {
     var expectedSize = (long) expected.size();
 
     willReturn(panacheQuery)
-            .given(customerRepository)
-            .find(anyString(), any(Sort.class), any(Map.class));
+        .given(customerRepository)
+        .find(anyString(), any(Sort.class), any(Map.class));
     given(panacheQuery.page(any(Page.class))).willReturn(panacheQuery);
     given(panacheQuery.project(CustomerSummaryProjection.class)).willReturn(summaryQuery);
     given(summaryQuery.list()).willReturn(expected);
@@ -106,8 +104,8 @@ class CustomerRepositoryTest {
 
   private void setupSearchCustomersMocks() {
     willReturn(panacheQuery)
-            .given(customerRepository)
-            .find(anyString(), any(Sort.class), any(Map.class));
+        .given(customerRepository)
+        .find(anyString(), any(Sort.class), any(Map.class));
     given(panacheQuery.page(any(Page.class))).willReturn(panacheQuery);
     given(panacheQuery.project(CustomerSummaryProjection.class)).willReturn(summaryQuery);
   }
@@ -116,19 +114,27 @@ class CustomerRepositoryTest {
   @DisplayName("Should build query with criteria filters")
   void shouldBuildQueryWithCriteriaFilters() {
     var criteria = getSearchCriteriaWithFilters();
-    var expectedWhereClause = "UPPER(documentNumber) LIKE :documentNumber"
+    var expectedWhereClause =
+        "UPPER(documentNumber) LIKE :documentNumber"
             + " AND customerType = :customerType"
             + " AND residencyStatus = :residencyStatus";
     var documentNumberParam = "%" + criteria.getDocumentNumber() + "%";
-    var expectedParams = Map.of("documentNumber", documentNumberParam,
-            "customerType", criteria.getCustomerType(),
-            "residencyStatus", criteria.getResidencyStatus());
+    var expectedParams =
+        Map.of(
+            "documentNumber",
+            documentNumberParam,
+            "customerType",
+            criteria.getCustomerType(),
+            "residencyStatus",
+            criteria.getResidencyStatus());
 
     setupSearchCustomersMocks();
 
     customerRepository.searchCustomers(criteria);
 
-    then(customerRepository).should().find(whereClauseCaptor.capture(), any(Sort.class), paramsCaptor.capture());
+    then(customerRepository)
+        .should()
+        .find(whereClauseCaptor.capture(), any(Sort.class), paramsCaptor.capture());
 
     assertEquals(expectedWhereClause, whereClauseCaptor.getValue());
     assertEquals(expectedParams, paramsCaptor.getValue());
@@ -145,12 +151,11 @@ class CustomerRepositoryTest {
 
     customerRepository.searchCustomers(criteria);
 
-    then(customerRepository).should().find(whereClauseCaptor.capture(), any(Sort.class), paramsCaptor.capture());
+    then(customerRepository)
+        .should()
+        .find(whereClauseCaptor.capture(), any(Sort.class), paramsCaptor.capture());
 
     assertEquals(expectedWhereClause, whereClauseCaptor.getValue());
     assertEquals(expectedParams, paramsCaptor.getValue());
   }
-
-
-
 }
