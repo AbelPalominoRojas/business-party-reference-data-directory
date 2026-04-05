@@ -1,16 +1,13 @@
 package com.ironman.partyreference.application.mapper;
 
 import static com.ironman.partyreference.application.model.api.PartyNameTypeValues.*;
-import static com.ironman.partyreference.application.model.api.PartyNameTypeValues.NOMBRE_COMPLETO;
 import static com.ironman.partyreference.application.util.AppUtils.buildPartyName;
+import static com.ironman.partyreference.application.util.AppUtils.joinNonBlankWith;
 
 import com.ironman.partyreference.application.model.api.PartyName;
 import com.ironman.partyreference.application.model.entity.CustomerEntity;
 import com.ironman.partyreference.application.model.entity.projection.CustomerSummaryProjection;
-import com.ironman.partyreference.application.util.AppUtils;
 import java.util.List;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import lombok.AccessLevel;
 import lombok.NoArgsConstructor;
 
@@ -73,8 +70,6 @@ public class PartyReferenceBuilder {
   }
 
   private static String joinNonBlankNames(String... nameParts) {
-    return Stream.of(nameParts)
-        .filter(namePart -> !AppUtils.isBlank(namePart))
-        .collect(Collectors.joining(" "));
+    return joinNonBlankWith(" ", nameParts);
   }
 }
