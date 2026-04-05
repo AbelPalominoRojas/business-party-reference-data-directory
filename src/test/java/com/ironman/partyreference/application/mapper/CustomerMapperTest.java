@@ -4,6 +4,7 @@ import static com.ironman.partyreference.application.model.api.DirectoryEntryDat
 import static com.ironman.partyreference.application.model.api.DirectoryEntryDateTypeValues.FECHA_MODIFICACION;
 import static com.ironman.partyreference.application.model.api.PartyIdentificationTypeValues.DOCUMENTO_NACIONAL_IDENTIDAD;
 import static com.ironman.partyreference.application.model.api.PartyNameTypeValues.*;
+import static com.ironman.partyreference.application.model.api.PartyTypeValues.PERSONA;
 import static com.ironman.partyreference.application.util.AppUtils.findNameByType;
 import static com.ironman.partyreference.application.util.AppUtils.joinNonBlankWith;
 import static com.ironman.partyreference.mock.CustomerMock.*;
@@ -13,10 +14,16 @@ import static org.mockito.BDDMockito.given;
 
 import com.ironman.partyreference.application.model.api.PartyIdentificationTypeValues;
 import com.ironman.partyreference.application.model.api.PartyTypeValues;
+import com.ironman.partyreference.application.model.api.RegisterPartyReferenceDataDirectoryEntryRequest;
 import com.ironman.partyreference.application.model.api.ResidencyStatusTypeValues;
+import com.ironman.partyreference.application.model.entity.CustomerEntity;
+import java.util.stream.Stream;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -170,94 +177,99 @@ class CustomerMapperTest {
     assertEquals(PartyTypeValues.ORGANIZACION, result.getPartyType());
   }
 
-  @Test
-  @DisplayName("Should map person request to CustomerEntity applying name fields")
-  void shouldMapPersonRequestToEntity() {
-    var request = getRegisterPersonRequest();
+  static Stream<Arguments> toEntityProvider() {
+    return Stream.of(
+        Arguments.of("person request", getRegisterPersonRequest(), "1", "P", "N"),
+        Arguments.of("organization request", getRegisterOrganizationRequest(), "6", "O", "N"));
+  }
 
-    given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any())).willReturn("1");
-    given(partyReferenceTypeResolver.resolvePartyTypeCode(any())).willReturn("P");
-    given(partyReferenceTypeResolver.resolveResidencyStatusCode(any())).willReturn("N");
+  @ParameterizedTest(name = "[{index}] {0}")
+  @MethodSource("toEntityProvider")
+  @DisplayName("Should map request to CustomerEntity")
+  void shouldMapRequestToEntity(
+      String displayName,
+      RegisterPartyReferenceDataDirectoryEntryRequest request,
+      String expectedDocumentType,
+      String expectedCustomerType,
+      String expectedResidencyStatus) {
+
+    given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any()))
+        .willReturn(expectedDocumentType);
+    given(partyReferenceTypeResolver.resolvePartyTypeCode(any())).willReturn(expectedCustomerType);
+    given(partyReferenceTypeResolver.resolveResidencyStatusCode(any()))
+        .willReturn(expectedResidencyStatus);
 
     var result = customerMapper.toEntity(request);
 
     assertNotNull(result);
-    assertEquals("1", result.getDocumentType());
-    assertEquals("12345678", result.getDocumentNumber());
-    assertEquals("P", result.getCustomerType());
-    assertEquals("N", result.getResidencyStatus());
-    assertEquals("María Elena", result.getName());
-    assertEquals("Rodríguez", result.getPaternalSurname());
-    assertEquals("Fernández", result.getMaternalSurname());
-    assertNull(result.getTradeName());
+    assertEquals(expectedDocumentType, result.getDocumentType());
+
+    var partyReference = request.getPartyReference();
+    var identifierValue =
+        partyReference.getPartyIdentification().getPartyIdentification().getIdentifierValue();
+    assertEquals(identifierValue, result.getDocumentNumber());
+
+    assertEquals(expectedCustomerType, result.getCustomerType());
+    assertEquals(expectedResidencyStatus, result.getResidencyStatus());
+
+    var partyNames = partyReference.getPartyNames();
+    var nameType = (PERSONA == request.getPartyType()) ? NOMBRE : RAZON_SOCIAL;
+    assertEquals(findNameByType(partyNames, nameType), result.getName());
+    assertEquals(findNameByType(partyNames, APELLIDO_PATERNO), result.getPaternalSurname());
+    assertEquals(findNameByType(partyNames, APELLIDO_MATERNO), result.getMaternalSurname());
+    assertEquals(findNameByType(partyNames, NOMBRE_FANTASIA), result.getTradeName());
   }
 
-  @Test
-  @DisplayName("Should map organization request to CustomerEntity with trade name and no surnames")
-  void shouldMapOrganizationRequestToEntity() {
-    var request = getRegisterOrganizationRequest();
-
-    given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any())).willReturn("6");
-    given(partyReferenceTypeResolver.resolvePartyTypeCode(any())).willReturn("O");
-    given(partyReferenceTypeResolver.resolveResidencyStatusCode(any())).willReturn("N");
-
-    var result = customerMapper.toEntity(request);
-
-    assertNotNull(result);
-    assertEquals("6", result.getDocumentType());
-    assertEquals("20330791412", result.getDocumentNumber());
-    assertEquals("O", result.getCustomerType());
-    assertEquals("N", result.getResidencyStatus());
-    assertEquals("Saga Falabella S.A.", result.getName());
-    assertNull(result.getPaternalSurname());
-    assertNull(result.getMaternalSurname());
-    assertEquals("Falabella", result.getTradeName());
+  static Stream<Arguments> updateEntityProvider() {
+    return Stream.of(
+        Arguments.of(
+            "person", getCustomerTypeOrganization(), getRegisterPersonRequest(), "1", "P", "N"),
+        Arguments.of(
+            "organization",
+            getCustomerTypePerson(),
+            getRegisterOrganizationRequest(),
+            "6",
+            "O",
+            "N"));
   }
 
-  @Test
-  @DisplayName("Should update CustomerEntity from person request preserving entity id")
-  void shouldUpdateEntityFromPersonRequest() {
-    var customer = getCustomerTypeOrganization();
-    var request = getRegisterPersonRequest();
+  @ParameterizedTest(name = "[{index}] {0}")
+  @MethodSource("updateEntityProvider")
+  @DisplayName("Should update CustomerEntity from request preserving entity id")
+  void shouldUpdateEntity(
+      String displayName,
+      CustomerEntity customer,
+      RegisterPartyReferenceDataDirectoryEntryRequest request,
+      String expectedDocumentType,
+      String expectedCustomerType,
+      String expectedResidencyStatus) {
 
-    given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any())).willReturn("1");
-    given(partyReferenceTypeResolver.resolvePartyTypeCode(any())).willReturn("P");
-    given(partyReferenceTypeResolver.resolveResidencyStatusCode(any())).willReturn("N");
+    given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any()))
+        .willReturn(expectedDocumentType);
+    given(partyReferenceTypeResolver.resolvePartyTypeCode(any())).willReturn(expectedCustomerType);
+    given(partyReferenceTypeResolver.resolveResidencyStatusCode(any()))
+        .willReturn(expectedResidencyStatus);
 
     customerMapper.updateEntity(customer, request);
 
-    assertEquals(2L, customer.getId());
-    assertEquals("1", customer.getDocumentType());
-    assertEquals("12345678", customer.getDocumentNumber());
-    assertEquals("P", customer.getCustomerType());
-    assertEquals("N", customer.getResidencyStatus());
-    assertEquals("María Elena", customer.getName());
-    assertEquals("Rodríguez", customer.getPaternalSurname());
-    assertEquals("Fernández", customer.getMaternalSurname());
-    assertNull(customer.getTradeName());
-  }
+    assertNotNull(customer.getId());
 
-  @Test
-  @DisplayName("Should update CustomerEntity from organization request preserving entity id")
-  void shouldUpdateEntityFromOrganizationRequest() {
-    var customer = getCustomerTypePerson();
-    var request = getRegisterOrganizationRequest();
+    assertEquals(expectedDocumentType, customer.getDocumentType());
 
-    given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any())).willReturn("6");
-    given(partyReferenceTypeResolver.resolvePartyTypeCode(any())).willReturn("O");
-    given(partyReferenceTypeResolver.resolveResidencyStatusCode(any())).willReturn("N");
+    var partyReference = request.getPartyReference();
+    var identifierValue =
+        partyReference.getPartyIdentification().getPartyIdentification().getIdentifierValue();
+    assertEquals(identifierValue, customer.getDocumentNumber());
 
-    customerMapper.updateEntity(customer, request);
+    assertEquals(expectedCustomerType, customer.getCustomerType());
+    assertEquals(expectedResidencyStatus, customer.getResidencyStatus());
 
-    assertEquals(1L, customer.getId());
-    assertEquals("6", customer.getDocumentType());
-    assertEquals("20330791412", customer.getDocumentNumber());
-    assertEquals("O", customer.getCustomerType());
-    assertEquals("N", customer.getResidencyStatus());
-    assertEquals("Saga Falabella S.A.", customer.getName());
-    assertNull(customer.getPaternalSurname());
-    assertNull(customer.getMaternalSurname());
-    assertEquals("Falabella", customer.getTradeName());
+    var partyNames = partyReference.getPartyNames();
+    var nameType = (PERSONA == request.getPartyType()) ? NOMBRE : RAZON_SOCIAL;
+    assertEquals(findNameByType(partyNames, nameType), customer.getName());
+    assertEquals(findNameByType(partyNames, APELLIDO_PATERNO), customer.getPaternalSurname());
+    assertEquals(findNameByType(partyNames, APELLIDO_MATERNO), customer.getMaternalSurname());
+    assertEquals(findNameByType(partyNames, NOMBRE_FANTASIA), customer.getTradeName());
   }
 
   @Test
