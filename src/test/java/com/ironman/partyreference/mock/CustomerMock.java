@@ -65,14 +65,18 @@ public class CustomerMock {
   public static CustomerIdentificationProjection getCustomerIdentification(
       String documentType, String documentNumber) {
     return CustomerIdentificationProjection.builder()
-        .id(3L)
+        .id(1L)
         .documentType(documentType)
         .documentNumber(documentNumber)
         .build();
   }
 
-  public static CustomerIdentificationProjection getConflictingCustomerIdentification() {
-    return getCustomerIdentification("1", "12345678");
+  public static CustomerIdentificationProjection getCustomerIdentification(Long customerId) {
+    return CustomerIdentificationProjection.builder()
+        .id(customerId)
+        .documentType("1")
+        .documentNumber("12345678")
+        .build();
   }
 
   public static CustomerSearchCriteria getSearchCriteriaWithFilters() {

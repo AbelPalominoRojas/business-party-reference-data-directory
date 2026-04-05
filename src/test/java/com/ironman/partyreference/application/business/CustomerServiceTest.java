@@ -174,7 +174,7 @@ class CustomerServiceTest {
   @DisplayName("Should throw ApplicationException when duplicate identifier on create")
   void shouldThrowApplicationExceptionWhenDuplicateIdentifierOnCreate() {
     var request = getRegisterPersonRequest();
-    var duplicateCustomer = getCustomerIdentification("1", "12345678");
+    var duplicateCustomer = getCustomerIdentification(1L);
 
     given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any())).willReturn("1");
     given(customerRepository.findByDocumentTypeAndNumber(anyString(), anyString()))
@@ -261,15 +261,36 @@ class CustomerServiceTest {
   }
 
   @Test
-  @DisplayName("Should throw ApplicationException when duplicate identifier on update")
-  void shouldThrowApplicationExceptionWhenDuplicateIdentifierOnUpdate() {
+  @DisplayName("Should update customer when identifier belongs to same customer")
+  void shouldUpdateCustomerWhenIdentifierBelongsToSameCustomer() {
     var request = getRegisterPersonRequest();
     var customer = getCustomerTypePerson();
+    var response = getRegisterResponse();
+    var sameCustomerIdentification = getCustomerIdentification(customer.getId());
 
     given(customerRepository.findByIdOptional(anyLong())).willReturn(Optional.of(customer));
     given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any())).willReturn("1");
     given(customerRepository.findByDocumentTypeAndNumber(anyString(), anyString()))
-        .willReturn(Optional.of(getConflictingCustomerIdentification()));
+        .willReturn(Optional.of(sameCustomerIdentification));
+    given(customerMapper.toRegisterResponse(isA(CustomerEntity.class))).willReturn(response);
+
+    var result = customerService.updateCustomer(1L, request);
+
+    assertNotNull(result);
+    assertEquals(response, result);
+  }
+
+  @Test
+  @DisplayName("Should throw ApplicationException when duplicate identifier on update")
+  void shouldThrowApplicationExceptionWhenDuplicateIdentifierOnUpdate() {
+    var request = getRegisterPersonRequest();
+    var customer = getCustomerTypePerson();
+    var conflictingCustomerIdentification = getCustomerIdentification(3L);
+
+    given(customerRepository.findByIdOptional(anyLong())).willReturn(Optional.of(customer));
+    given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any())).willReturn("1");
+    given(customerRepository.findByDocumentTypeAndNumber(anyString(), anyString()))
+        .willReturn(Optional.of(conflictingCustomerIdentification));
 
     assertThrows(ApplicationException.class, () -> customerService.updateCustomer(1L, request));
     verify(customerMapper, never()).toRegisterResponse(isA(CustomerEntity.class));
