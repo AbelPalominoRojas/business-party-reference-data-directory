@@ -3,16 +3,14 @@ package com.ironman.partyreference.application.mapper;
 import static com.ironman.partyreference.application.model.api.DirectoryEntryDateTypeValues.FECHA_CREACION;
 import static com.ironman.partyreference.application.model.api.DirectoryEntryDateTypeValues.FECHA_MODIFICACION;
 import static com.ironman.partyreference.application.model.api.PartyIdentificationTypeValues.DOCUMENTO_NACIONAL_IDENTIDAD;
+import static com.ironman.partyreference.application.model.api.PartyIdentificationTypeValues.REGISTRO_UNICO_CONTRIBUYENTE;
 import static com.ironman.partyreference.application.model.api.PartyNameTypeValues.*;
-import static com.ironman.partyreference.application.model.api.PartyTypeValues.PERSONA;
-import static com.ironman.partyreference.application.util.AppUtils.findNameByType;
-import static com.ironman.partyreference.application.util.AppUtils.joinNonBlankWith;
+import static com.ironman.partyreference.application.util.AppUtils.*;
 import static com.ironman.partyreference.mock.CustomerMock.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
 
-import com.ironman.partyreference.application.model.api.PartyIdentificationTypeValues;
 import com.ironman.partyreference.application.model.api.PartyTypeValues;
 import com.ironman.partyreference.application.model.api.RegisterPartyReferenceDataDirectoryEntryRequest;
 import com.ironman.partyreference.application.model.api.ResidencyStatusTypeValues;
@@ -90,7 +88,7 @@ class CustomerMapperTest {
     var customer = getCustomerTypeOrganization();
 
     given(partyReferenceTypeResolver.resolveIdentificationType(anyString()))
-        .willReturn(PartyIdentificationTypeValues.REGISTRO_UNICO_CONTRIBUYENTE);
+        .willReturn(REGISTRO_UNICO_CONTRIBUYENTE);
     given(partyReferenceTypeResolver.resolvePartyType(anyString()))
         .willReturn(PartyTypeValues.ORGANIZACION);
     given(partyReferenceTypeResolver.resolveResidencyStatus(anyString()))
@@ -103,8 +101,10 @@ class CustomerMapperTest {
     var partyRef = result.getPartyReference();
     assertEquals(String.valueOf(customer.getId()), partyRef.getPartyId());
 
-    var identifierValue =
-        partyRef.getPartyIdentification().getPartyIdentification().getIdentifierValue();
+    var identification = partyRef.getPartyIdentification();
+    assertEquals(REGISTRO_UNICO_CONTRIBUYENTE, identification.getPartyIdentificationType());
+
+    var identifierValue = identification.getPartyIdentification().getIdentifierValue();
     assertEquals(customer.getDocumentNumber(), identifierValue);
 
     var names = partyRef.getPartyNames();
@@ -113,6 +113,14 @@ class CustomerMapperTest {
     assertEquals(customer.getTradeName(), findNameByType(names, NOMBRE_FANTASIA));
 
     assertEquals(PartyTypeValues.ORGANIZACION, result.getPartyType());
+    assertEquals(ResidencyStatusTypeValues.NACIONAL, result.getResidencyStatus());
+
+    var dates = result.getDirectoryEntryDates();
+    assertEquals(2, dates.size());
+    assertEquals(FECHA_CREACION, dates.get(0).getDirectoryEntryDateType());
+    assertEquals(customer.getCreatedAt(), dates.get(0).getDirectoryEntryDate());
+    assertEquals(FECHA_MODIFICACION, dates.get(1).getDirectoryEntryDateType());
+    assertEquals(customer.getUpdatedAt(), dates.get(1).getDirectoryEntryDate());
   }
 
   @Test
@@ -134,8 +142,10 @@ class CustomerMapperTest {
     var partyRef = result.getPartyReference();
     assertEquals(String.valueOf(customer.getId()), partyRef.getPartyId());
 
-    var identifierValue =
-        partyRef.getPartyIdentification().getPartyIdentification().getIdentifierValue();
+    var identification = partyRef.getPartyIdentification();
+    assertEquals(DOCUMENTO_NACIONAL_IDENTIDAD, identification.getPartyIdentificationType());
+
+    var identifierValue = identification.getPartyIdentification().getIdentifierValue();
     assertEquals(customer.getDocumentNumber(), identifierValue);
 
     var names = partyRef.getPartyNames();
@@ -159,7 +169,7 @@ class CustomerMapperTest {
     var customer = getCustomerSummary().get(1);
 
     given(partyReferenceTypeResolver.resolveIdentificationType(anyString()))
-        .willReturn(PartyIdentificationTypeValues.REGISTRO_UNICO_CONTRIBUYENTE);
+        .willReturn(REGISTRO_UNICO_CONTRIBUYENTE);
     given(partyReferenceTypeResolver.resolvePartyType(anyString()))
         .willReturn(PartyTypeValues.ORGANIZACION);
     given(partyReferenceTypeResolver.resolveResidencyStatus(anyString()))
@@ -169,12 +179,22 @@ class CustomerMapperTest {
 
     assertNotNull(result);
 
-    var names = result.getPartyReference().getPartyNames();
+    var partyRef = result.getPartyReference();
+    assertEquals(String.valueOf(customer.getId()), partyRef.getPartyId());
+
+    var identification = partyRef.getPartyIdentification();
+    assertEquals(REGISTRO_UNICO_CONTRIBUYENTE, identification.getPartyIdentificationType());
+
+    var identifierValue = identification.getPartyIdentification().getIdentifierValue();
+    assertEquals(customer.getDocumentNumber(), identifierValue);
+
+    var names = partyRef.getPartyNames();
     assertEquals(2, names.size());
     assertEquals(customer.getName(), findNameByType(names, RAZON_SOCIAL));
     assertEquals(customer.getTradeName(), findNameByType(names, NOMBRE_FANTASIA));
 
     assertEquals(PartyTypeValues.ORGANIZACION, result.getPartyType());
+    assertEquals(ResidencyStatusTypeValues.NACIONAL, result.getResidencyStatus());
   }
 
   static Stream<Arguments> toEntityProvider() {
@@ -213,7 +233,7 @@ class CustomerMapperTest {
     assertEquals(expectedResidencyStatus, result.getResidencyStatus());
 
     var partyNames = partyReference.getPartyNames();
-    var nameType = (PERSONA == request.getPartyType()) ? NOMBRE : RAZON_SOCIAL;
+    var nameType = resolvePrimaryNameType(request.getPartyType());
     assertEquals(findNameByType(partyNames, nameType), result.getName());
     assertEquals(findNameByType(partyNames, APELLIDO_PATERNO), result.getPaternalSurname());
     assertEquals(findNameByType(partyNames, APELLIDO_MATERNO), result.getMaternalSurname());
@@ -250,9 +270,11 @@ class CustomerMapperTest {
     given(partyReferenceTypeResolver.resolveResidencyStatusCode(any()))
         .willReturn(expectedResidencyStatus);
 
+    var originalId = customer.getId();
+
     customerMapper.updateEntity(customer, request);
 
-    assertNotNull(customer.getId());
+    assertEquals(originalId, customer.getId());
 
     assertEquals(expectedDocumentType, customer.getDocumentType());
 
@@ -265,7 +287,7 @@ class CustomerMapperTest {
     assertEquals(expectedResidencyStatus, customer.getResidencyStatus());
 
     var partyNames = partyReference.getPartyNames();
-    var nameType = (PERSONA == request.getPartyType()) ? NOMBRE : RAZON_SOCIAL;
+    var nameType = resolvePrimaryNameType(request.getPartyType());
     assertEquals(findNameByType(partyNames, nameType), customer.getName());
     assertEquals(findNameByType(partyNames, APELLIDO_PATERNO), customer.getPaternalSurname());
     assertEquals(findNameByType(partyNames, APELLIDO_MATERNO), customer.getMaternalSurname());

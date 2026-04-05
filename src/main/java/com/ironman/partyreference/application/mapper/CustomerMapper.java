@@ -5,9 +5,7 @@ import static com.ironman.partyreference.application.mapper.PartyReferenceBuilde
 import static com.ironman.partyreference.application.model.api.DirectoryEntryDateTypeValues.FECHA_CREACION;
 import static com.ironman.partyreference.application.model.api.DirectoryEntryDateTypeValues.FECHA_MODIFICACION;
 import static com.ironman.partyreference.application.model.api.PartyNameTypeValues.*;
-import static com.ironman.partyreference.application.model.api.PartyTypeValues.PERSONA;
-import static com.ironman.partyreference.application.util.AppUtils.buildDirectoryEntryDate;
-import static com.ironman.partyreference.application.util.AppUtils.findNameByType;
+import static com.ironman.partyreference.application.util.AppUtils.*;
 import static com.ironman.partyreference.application.util.Constants.CUSTOMER_TYPE_NATURAL_PERSON;
 import static org.mapstruct.MappingConstants.ComponentModel;
 
@@ -112,7 +110,7 @@ public interface CustomerMapper {
       @MappingTarget CustomerEntity customer) {
     var partyNames = request.getPartyReference().getPartyNames();
 
-    var nameType = (PERSONA == request.getPartyType()) ? NOMBRE : RAZON_SOCIAL;
+    var nameType = resolvePrimaryNameType(request.getPartyType());
     customer.setName(findNameByType(partyNames, nameType));
 
     customer.setPaternalSurname(findNameByType(partyNames, APELLIDO_PATERNO));

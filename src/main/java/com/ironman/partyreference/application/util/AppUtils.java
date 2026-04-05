@@ -1,5 +1,9 @@
 package com.ironman.partyreference.application.util;
 
+import static com.ironman.partyreference.application.model.api.PartyNameTypeValues.NOMBRE;
+import static com.ironman.partyreference.application.model.api.PartyNameTypeValues.RAZON_SOCIAL;
+import static com.ironman.partyreference.application.model.api.PartyTypeValues.PERSONA;
+
 import com.ironman.partyreference.application.model.api.*;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -13,6 +17,10 @@ public class AppUtils {
 
   public static PartyName buildPartyName(String nameValue, PartyNameTypeValues nameType) {
     return new PartyName().partyName(nameValue).partyNameType(nameType);
+  }
+
+  public static PartyNameTypeValues resolvePrimaryNameType(PartyTypeValues partyType) {
+    return PERSONA == partyType ? NOMBRE : RAZON_SOCIAL;
   }
 
   public static DirectoryEntryDate buildDirectoryEntryDate(
