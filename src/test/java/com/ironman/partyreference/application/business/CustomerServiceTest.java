@@ -1,10 +1,10 @@
 package com.ironman.partyreference.application.business;
 
-import static com.ironman.partyreference.mock.CustomerMock.getCustomerSummary;
-import static com.ironman.partyreference.mock.CustomerMock.getPartyReferencePerson;
+import static com.ironman.partyreference.mock.CustomerMock.*;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.BDDMockito.willThrow;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 
@@ -23,6 +23,7 @@ import io.quarkus.panache.common.Page;
 import java.util.List;
 import java.util.Optional;
 import org.hibernate.HibernateException;
+import org.hibernate.exception.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -148,5 +149,163 @@ class CustomerServiceTest {
 
     assertThrows(ApplicationException.class, () -> customerService.searchCustomers(query));
     verify(customerMapper, never()).toDirectoryEntry(isA(CustomerSummaryProjection.class));
+  }
+
+  @Test
+  @DisplayName("Should create customer successfully")
+  void shouldCreateCustomerSuccessfully() {
+    var request = getRegisterPersonRequest();
+    var customer = getCustomerTypePerson();
+    var response = getRegisterResponse();
+
+    given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any())).willReturn("1");
+    given(customerRepository.findByDocumentTypeAndNumber(anyString(), anyString()))
+        .willReturn(Optional.empty());
+    given(customerMapper.toEntity(any())).willReturn(customer);
+    given(customerMapper.toRegisterResponse(isA(CustomerEntity.class))).willReturn(response);
+
+    var result = customerService.createCustomer(request);
+
+    assertNotNull(result);
+    assertEquals(response, result);
+  }
+
+  @Test
+  @DisplayName("Should throw ApplicationException when duplicate identifier on create")
+  void shouldThrowApplicationExceptionWhenDuplicateIdentifierOnCreate() {
+    var request = getRegisterPersonRequest();
+    var duplicateCustomer = getCustomerIdentification("1", "12345678");
+
+    given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any())).willReturn("1");
+    given(customerRepository.findByDocumentTypeAndNumber(anyString(), anyString()))
+        .willReturn(Optional.of(duplicateCustomer));
+
+    assertThrows(ApplicationException.class, () -> customerService.createCustomer(request));
+    verify(customerMapper, never()).toEntity(any());
+  }
+
+  @Test
+  @DisplayName("Should throw ApplicationException when constraint violation on create")
+  void shouldThrowApplicationExceptionWhenConstraintViolationOnCreate() {
+    var request = getRegisterPersonRequest();
+    var customer = getCustomerTypePerson();
+
+    given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any())).willReturn("1");
+    given(customerRepository.findByDocumentTypeAndNumber(anyString(), anyString()))
+        .willReturn(Optional.empty());
+    given(customerMapper.toEntity(any())).willReturn(customer);
+    willThrow(new ConstraintViolationException("Constraint violated", null, "uk_document"))
+        .given(customerRepository)
+        .persist(isA(CustomerEntity.class));
+
+    assertThrows(ApplicationException.class, () -> customerService.createCustomer(request));
+  }
+
+  @Test
+  @DisplayName("Should throw ApplicationException when database error occurs during create")
+  void shouldThrowApplicationExceptionWhenDatabaseErrorOccursDuringCreate() {
+    var request = getRegisterPersonRequest();
+    var customer = getCustomerTypePerson();
+
+    given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any())).willReturn("1");
+    given(customerRepository.findByDocumentTypeAndNumber(anyString(), anyString()))
+        .willReturn(Optional.empty());
+    given(customerMapper.toEntity(any())).willReturn(customer);
+    willThrow(new HibernateException("Connection failed"))
+        .given(customerRepository)
+        .persist(isA(CustomerEntity.class));
+
+    assertThrows(ApplicationException.class, () -> customerService.createCustomer(request));
+  }
+
+  @Test
+  @DisplayName("Should update customer successfully")
+  void shouldUpdateCustomerSuccessfully() {
+    var request = getRegisterPersonRequest();
+    var customer = getCustomerTypePerson();
+    var response = getRegisterResponse();
+
+    given(customerRepository.findByIdOptional(anyLong())).willReturn(Optional.of(customer));
+    given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any())).willReturn("1");
+    given(customerRepository.findByDocumentTypeAndNumber(anyString(), anyString()))
+        .willReturn(Optional.empty());
+    given(customerMapper.toRegisterResponse(isA(CustomerEntity.class))).willReturn(response);
+
+    var result = customerService.updateCustomer(1L, request);
+
+    assertNotNull(result);
+    assertEquals(response, result);
+  }
+
+  @Test
+  @DisplayName("Should throw ApplicationException when customer not found on update")
+  void shouldThrowApplicationExceptionWhenCustomerNotFoundOnUpdate() {
+    var request = getRegisterPersonRequest();
+
+    given(customerRepository.findByIdOptional(anyLong())).willReturn(Optional.empty());
+
+    assertThrows(ApplicationException.class, () -> customerService.updateCustomer(1L, request));
+    verify(customerMapper, never()).toRegisterResponse(isA(CustomerEntity.class));
+  }
+
+  @Test
+  @DisplayName("Should throw ApplicationException when customer error found on update")
+  void shouldThrowApplicationExceptionWhenCustomerErrorFoundOnUpdate() {
+    var request = getRegisterPersonRequest();
+
+    given(customerRepository.findByIdOptional(anyLong()))
+        .willThrow(new HibernateException("Connection failed"));
+
+    assertThrows(ApplicationException.class, () -> customerService.updateCustomer(1L, request));
+    verify(customerMapper, never()).toRegisterResponse(isA(CustomerEntity.class));
+  }
+
+  @Test
+  @DisplayName("Should throw ApplicationException when duplicate identifier on update")
+  void shouldThrowApplicationExceptionWhenDuplicateIdentifierOnUpdate() {
+    var request = getRegisterPersonRequest();
+    var customer = getCustomerTypePerson();
+
+    given(customerRepository.findByIdOptional(anyLong())).willReturn(Optional.of(customer));
+    given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any())).willReturn("1");
+    given(customerRepository.findByDocumentTypeAndNumber(anyString(), anyString()))
+        .willReturn(Optional.of(getConflictingCustomerIdentification()));
+
+    assertThrows(ApplicationException.class, () -> customerService.updateCustomer(1L, request));
+    verify(customerMapper, never()).toRegisterResponse(isA(CustomerEntity.class));
+  }
+
+  @Test
+  @DisplayName("Should throw ApplicationException when constraint violation on update")
+  void shouldThrowApplicationExceptionWhenConstraintViolationOnUpdate() {
+    var request = getRegisterPersonRequest();
+    var customer = getCustomerTypePerson();
+
+    given(customerRepository.findByIdOptional(anyLong())).willReturn(Optional.of(customer));
+    given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any())).willReturn("1");
+    given(customerRepository.findByDocumentTypeAndNumber(anyString(), anyString()))
+        .willReturn(Optional.empty());
+    willThrow(new ConstraintViolationException("Constraint violated", null, "uk_document"))
+        .given(customerRepository)
+        .persist(isA(CustomerEntity.class));
+
+    assertThrows(ApplicationException.class, () -> customerService.updateCustomer(1L, request));
+  }
+
+  @Test
+  @DisplayName("Should throw ApplicationException when database error occurs during update")
+  void shouldThrowApplicationExceptionWhenDatabaseErrorOccursDuringUpdate() {
+    var request = getRegisterPersonRequest();
+    var customer = getCustomerTypePerson();
+
+    given(customerRepository.findByIdOptional(anyLong())).willReturn(Optional.of(customer));
+    given(partyReferenceTypeResolver.resolveIdentificationTypeCode(any())).willReturn("1");
+    given(customerRepository.findByDocumentTypeAndNumber(anyString(), anyString()))
+        .willReturn(Optional.empty());
+    willThrow(new HibernateException("Connection failed"))
+        .given(customerRepository)
+        .persist(isA(CustomerEntity.class));
+
+    assertThrows(ApplicationException.class, () -> customerService.updateCustomer(1L, request));
   }
 }

@@ -1,6 +1,5 @@
 {
   "partyReference": {
-    "partyId": "80",
     "partyIdentification": {
       "partyIdentificationType": "RegistroUnicoContribuyente",
       "partyIdentification": {
@@ -19,15 +18,5 @@
     ]
   },
   "partyType": "Organizacion",
-  "residencyStatus": "Nacional",
-  "directoryEntryDates": [
-    {
-      "directoryEntryDateType": "FechaCreacion",
-      "directoryEntryDate": "2026-03-14T18:33:35.69"
-    },
-    {
-      "directoryEntryDateType": "FechaModificacion",
-      "directoryEntryDate": null
-    }
-  ]
+  "residencyStatus": "Nacional"
 }

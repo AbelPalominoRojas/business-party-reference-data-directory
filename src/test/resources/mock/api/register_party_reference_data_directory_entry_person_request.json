@@ -1,0 +1,26 @@
+{
+  "partyReference": {
+    "partyIdentification": {
+      "partyIdentificationType": "DocumentoNacionalIdentidad",
+      "partyIdentification": {
+        "identifierValue": "12345678"
+      }
+    },
+    "partyNames": [
+      {
+        "partyNameType": "Nombre",
+        "partyName": "María Elena"
+      },
+      {
+        "partyNameType": "ApellidoPaterno",
+        "partyName": "Rodríguez"
+      },
+      {
+        "partyNameType": "ApellidoMaterno",
+        "partyName": "Fernández"
+      }
+    ]
+  },
+  "partyType": "Persona",
+  "residencyStatus": "Nacional"
+}
