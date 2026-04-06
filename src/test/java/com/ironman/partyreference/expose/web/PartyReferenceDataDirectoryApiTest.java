@@ -31,12 +31,15 @@ import java.util.stream.Stream;
 import org.hamcrest.Matchers;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.MethodSource;
-import org.mockito.Mockito;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
 
 @QuarkusTest
+@ExtendWith(MockitoExtension.class)
 class PartyReferenceDataDirectoryApiTest {
 
   private static final long PARTY_ENTRY_ID = 1L;
@@ -51,7 +54,7 @@ class PartyReferenceDataDirectoryApiTest {
 
   @InjectMock private CustomerRepository customerRepository;
 
-  // @InjectMock PanacheQuery<CustomerSummaryProjection> panacheQuery;
+  @Mock private PanacheQuery<CustomerSummaryProjection> panacheQuery;
 
   static Stream<Arguments> customerByTypeProvider() {
     return Stream.of(
@@ -137,10 +140,8 @@ class PartyReferenceDataDirectoryApiTest {
 
   @Test
   @DisplayName("Should return 200 with paginated results when searching party reference entries")
-  @SuppressWarnings("unchecked")
   void shouldReturnPaginatedResultsWhenSearchingPartyReferenceEntries() {
     List<CustomerSummaryProjection> customers = getCustomerSummary();
-    PanacheQuery<CustomerSummaryProjection> panacheQuery = Mockito.mock(PanacheQuery.class);
     given(panacheQuery.stream()).willReturn(customers.stream());
     given(panacheQuery.page()).willReturn(Page.of(0, 10));
     given(panacheQuery.count()).willReturn((long) customers.size());
